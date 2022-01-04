@@ -25,3 +25,7 @@ test {
 
 // Define the main class for the application.
 mainClassName = 'com.kenzie.app.Main'
+
+run{
+    standardInput = System.in
+}

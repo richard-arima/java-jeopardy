@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Capstone - MainTest",
+      "setup": "",
+      "run": "gradle test --tests MainTest",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    },
+    {
+      "name": "Capstone - CustomHTTPClientTest",
+      "setup": "",
+      "run": "gradle test --tests CustomHTTPClientTest",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    }
+  ]
+}

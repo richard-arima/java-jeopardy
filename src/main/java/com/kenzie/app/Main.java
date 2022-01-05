@@ -2,10 +2,17 @@ package com.kenzie.app;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.net.URL;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Main extends Application {
@@ -16,6 +23,7 @@ public class Main extends Application {
     private static GameDaemon gameDaemon = null;
 
     private Scene welcomeScene;
+    @FXML
     private Button btnToConsole;
 
     public static void main(String[] args) {
@@ -60,9 +68,20 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(GAME_TITLE);
-        generateWelcomeScene();
 
-        primaryStage.setScene(this.welcomeScene);
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(Objects.requireNonNull(getClass().
+                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + ".fxml")));
+        } catch(Exception e) {
+            String s = e.getMessage();
+        }
+        Scene scene = new Scene(root, 400, 300);
+        primaryStage.setScene(scene);
+//        generateWelcomeScene();
+//
+//        primaryStage.setScene(this.welcomeScene);
+
         primaryStage.show();
     }
 
@@ -92,6 +111,10 @@ public class Main extends Application {
         welcomeScene.getStylesheets().add(GAME_TITLE.replaceAll(" ", "") + ".css");
     }
 
+    public void btnToConsole(ActionEvent actionEvent) {
+        gameDaemon.setGameState(GameState.TO_CONSOLE);
+        Platform.exit();
+    }
 //    @Override
 //    public void handle(ActionEvent event) {
 //        System.out.println("hey");

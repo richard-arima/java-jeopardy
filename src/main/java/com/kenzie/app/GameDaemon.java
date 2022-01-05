@@ -6,6 +6,7 @@ enum GameState {
     GET_CATEGORY,
     PRESENT_QUESTION,
     PROCESS_ANSWER,
+    TO_CONSOLE,
     QUIT
 }
 
@@ -32,7 +33,15 @@ public class GameDaemon {
             default:
                 // This shouldn't happen, yet here we are. Nothing defined so far.
         }
-        return true;
+        return false;
+    }
+
+    public GameState getGameState() {
+        return this.gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
     }
 }
 

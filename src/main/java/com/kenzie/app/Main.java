@@ -26,6 +26,7 @@ public class Main extends Application {
     public static final String CONSOLE_PADDING = "\n";
 
     private static GameDaemon gameDaemon = null;
+    private static Scanner inputScanner = null;
 
     private Scene welcomeScene;
     @FXML
@@ -50,7 +51,7 @@ public class Main extends Application {
         // Console execution ----------------------------------------------------------------------
         System.out.println(CONSOLE_WELCOME_MESSAGE + CONSOLE_PADDING);
 
-        //Scanner inputScanner = new Scanner(System.in);
+        inputScanner = new Scanner(System.in);
         String inputResponse = "";
         GameState gameState;
         while ((gameState = gameDaemon.getGameState()) != GameState.QUIT) {
@@ -123,10 +124,6 @@ public class Main extends Application {
         }
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
-//        generateWelcomeScene();
-//
-//        primaryStage.setScene(this.welcomeScene);
-
         primaryStage.setResizable(false);
         primaryStage.show();
     }
@@ -170,12 +167,16 @@ public class Main extends Application {
     private static String getConsoleInput()
             throws NoSuchElementException, IllegalStateException
     {
-        return new Scanner(System.in).nextLine();
+        return inputScanner.nextLine();
     }
 
     private static String scannerInput() {
         try {
-            return new Scanner(System.in).nextLine();
+            if (inputScanner.hasNextLine()) {
+                return inputScanner.nextLine();
+            } else {
+                return null;
+            }
         } catch (NoSuchElementException e) {
             return null;
         }
@@ -183,17 +184,18 @@ public class Main extends Application {
 
     // Ref: https://stackoverflow.com/questions/61807890/user-input-with-a-timeout-in-java
     private static String getConsoleInputWithTimeout() {
-        Callable<String> callable = Main::scannerInput;
+        Callable<String> callable = () -> inputScanner.hasNextLine() ? inputScanner.nextLine() : null;
         ExecutorService service = Executors.newFixedThreadPool(1);
         Future<String> inputFuture = service.submit(callable);
 
         try {
             return inputFuture.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | CancellationException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
             return null;
         } catch (TimeoutException e) {
+            //inputFuture.cancel(true);
             return null;
         } finally {
             service.shutdown();

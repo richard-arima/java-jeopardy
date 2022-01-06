@@ -11,14 +11,17 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 public class Main extends Application {
-    public static final String GAME_TITLE = "Kenzie Quiz Bowl";
-    public static final String WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
-    public static final String GOODBYE_MESSAGE = "Thank you for playing with us today :D\nGoodbye!";
+    public static final String GAME_TITLE = "Kenzie Quiz Bowl"; // also used for resource file names
+    public static final int GAME_INPUT_TIMEOUT = 5; // in seconds
+
+    public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
+    public static final String CONSOLE_GOODBYE_MESSAGE = "Thank you for playing with us today :D\nGoodbye!";
 
     private static GameDaemon gameDaemon = null;
 
@@ -27,10 +30,8 @@ public class Main extends Application {
     private Button btnToConsole;
 
     public static void main(String[] args) {
-        Scanner inputScanner = new Scanner(System.in);
         gameDaemon = GameDaemon.getInstance();
 
-        //MainFrame mainFrame = new MainFrame(gameDaemon); // deprecated from swift ui
         launch(args);
 
         switch (gameDaemon.getGameState()) {
@@ -43,27 +44,54 @@ public class Main extends Application {
         }
 
         // Console execution ----------------------------------------------------------------------
-        // welcome message
-        System.out.println(WELCOME_MESSAGE);
+        System.out.println(CONSOLE_WELCOME_MESSAGE);
 
+        Scanner inputScanner = new Scanner(System.in);
         String inputResponse = "";
-        boolean continueGame = true;
-        do {
+        GameState gameState;
+        while ((gameState = gameDaemon.getGameState()) != GameState.QUIT) {
+            switch (gameState) {
+                case TO_CONSOLE:
+                    gameDaemon.setGameState(GameState.QUIT);
+                    break;
+                case GET_NUM_PLAYERS:
+                    System.out.print("Please enter the number of players (1 or 2): ");
+                    break;
+                case GET_GAME_TYPE:
+                    System.out.print("What type of game would you like to play?\n" +
+                                     "  1) Single Category\n" +
+                                     "  2) Mixed Random Categories\n" +
+                                     "  3) Full Jeopardy Round\n: ");
+                    break;
+                case GET_CATEGORY:
+                    break;
+                case QUIT:
+                    break;
+                default:
+                    // This shouldn't happen
+                    System.out.println("ERROR, UNEXPECTED SWITCH " + gameState + " in main()");
+            }
             try {
-                inputResponse = inputScanner.nextLine();
-            } catch (IllegalStateException illegalStateException) {
-                System.out.println("Fatal Error: Could not open Scanner.");
-                return;
-            } catch (java.util.NoSuchElementException noSuchElementException) {
-                System.out.println("Error: No line was found.");
+                if ((gameState.getValue() & GameState.TIMEOUT.getValue()) == GameState.TIMEOUT.getValue()) {
+                    inputResponse = getConsoleInputWithTimeout(inputScanner);
+                } else {
+                    inputResponse = getConsoleInput(inputScanner);
+                }
+            } catch (TimeoutException e) {
+
+            } catch (NoSuchElementException | IllegalStateException e) {
+                System.out.println("Error: Scanner could not open or had another internal error.");
+                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
 
-            continueGame = gameDaemon.reportInput(inputResponse);
-        } while (continueGame);
+            gameDaemon.reportInput(inputResponse);
+        }
 
-        // output goodbye
-        System.out.println(GOODBYE_MESSAGE);
+        System.out.println(CONSOLE_GOODBYE_MESSAGE);
     }
+
+    // GUI Methods --------------------------------------------------------------------------------
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -73,26 +101,29 @@ public class Main extends Application {
         try {
             root = FXMLLoader.load(Objects.requireNonNull(getClass().
                     getResource("/" + GAME_TITLE.replaceAll(" ", "") + ".fxml")));
-        } catch(Exception e) {
+        } catch (Exception e) {
             String s = e.getMessage();
         }
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
 //        generateWelcomeScene();
 //
 //        primaryStage.setScene(this.welcomeScene);
 
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
     @Override
     public void stop() {
-        if(gameDaemon.getGameState() == GameState.TO_CONSOLE) {
+        if (gameDaemon.getGameState() == GameState.TO_CONSOLE) {
             return;
         }
         gameDaemon.setGameState(GameState.QUIT);
     }
 
+
+    // This function seems as it will be deprecated shortly
     private void generateWelcomeScene() {
         if (welcomeScene != null) {
             return;
@@ -123,5 +154,30 @@ public class Main extends Application {
 //            Platform.exit();
 //        }
 //    }
+
+    // Console Methods ----------------------------------------------------------------------------
+
+    private static String getConsoleInput(Scanner inputScanner)
+            throws NoSuchElementException, IllegalStateException
+    {
+        return inputScanner.nextLine();
+    }
+
+    // Ref: https://stackoverflow.com/questions/61807890/user-input-with-a-timeout-in-java
+    private static String getConsoleInputWithTimeout(Scanner inputScanner) throws TimeoutException {
+        Callable<String> callable = () -> inputScanner.nextLine();
+        ExecutorService service = Executors.newFixedThreadPool(1);
+        Future<String> inputFuture = service.submit(callable);
+
+        try {
+            return inputFuture.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return null;
+        } finally {
+            service.shutdown();
+        }
+    }
 }
 

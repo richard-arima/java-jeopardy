@@ -5,6 +5,6 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@KenzieQuizBowl.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kenzie.app.Main">
    <children>
-      <Button id="btnToConsole" layoutX="40.0" layoutY="31.0" mnemonicParsing="false" onAction="#btnToConsole" text="Go To Console Mode" />
+      <Button id="btnToConsole" layoutX="443.0" layoutY="7.0" mnemonicParsing="false" onAction="#btnToConsole" prefHeight="20.0" prefWidth="151.0" text="Go To Console Mode" />
    </children>
 </AnchorPane>

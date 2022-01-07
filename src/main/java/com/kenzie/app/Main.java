@@ -11,10 +11,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.sql.Time;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.concurrent.*;
 
 public class Main extends Application {
@@ -26,7 +27,6 @@ public class Main extends Application {
     public static final String CONSOLE_PADDING = "\n";
 
     private static GameDaemon gameDaemon = null;
-    private static Scanner inputScanner = null;
 
     private Scene welcomeScene;
     @FXML
@@ -51,7 +51,6 @@ public class Main extends Application {
         // Console execution ----------------------------------------------------------------------
         System.out.println(CONSOLE_WELCOME_MESSAGE + CONSOLE_PADDING);
 
-        inputScanner = new Scanner(System.in);
         String inputResponse = "";
         GameState gameState;
         while ((gameState = gameDaemon.getGameState()) != GameState.QUIT) {
@@ -63,9 +62,9 @@ public class Main extends Application {
                     break;
                 case GET_GAME_TYPE:
                     System.out.print("What type of game would you like to play?\n" +
-                                     "  1) Single Category\n" +
-                                     "  2) Mixed Random Categories\n" +
-                                     "  3) Full Jeopardy Round\n=> ");
+                            "  1) Single Category\n" +
+                            "  2) Mixed Random Categories\n" +
+                            "  3) Full Jeopardy Round\n=> ");
                     break;
                 case GET_CATEGORY:
                     // todo: get categories
@@ -86,18 +85,15 @@ public class Main extends Application {
                 } else {
                     inputResponse = getConsoleInput();
                 }
-//            } catch (TimeoutException e) {
-//                // todo: User has timed out for response,
-//                System.out.println("TIMEOUT");
-//                inputResponse = null;
-            } catch (NoSuchElementException | IllegalStateException e) {
+            } catch (TimeoutException e) {
+                // todo: User has timed out for response,
+                System.out.println("TIMEOUT");
+                System.out.println(e.getMessage());
+                inputResponse = null;
+            } catch (NoSuchElementException | IllegalStateException | InterruptedException e) {
                 System.out.println("Error: Scanner could not open or had another internal error.");
                 System.out.println(e.getMessage());
                 e.printStackTrace();
-            }
-
-            if(inputResponse == null) {
-                System.out.println("TIMEOUT");
             }
 
             if (!gameDaemon.reportInput(inputResponse)) {
@@ -167,39 +163,47 @@ public class Main extends Application {
     private static String getConsoleInput()
             throws NoSuchElementException, IllegalStateException
     {
-        return inputScanner.nextLine();
+        try {
+            return new BufferedReader(new InputStreamReader(System.in)).readLine();
+        } catch (IOException e) {
+            System.out.println("Error: IOException in getConsoleInput()");
+            return null;
+        }
     }
 
-    private static String scannerInput() {
+    // based on: https://pretagteam.com/question/user-input-with-a-timeout-in-java
+    public static String getConsoleInputWithTimeout() throws InterruptedException, TimeoutException {
+        ExecutorService ex = Executors.newSingleThreadExecutor();
+        String input = null;
+        Callable<String> stringCallable = () -> {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+                try {
+                    while (!bufferedReader.ready()) {
+                        Thread.sleep(50);
+                    }
+                    return bufferedReader.readLine();
+                } catch (IOException e) {
+                    System.out.println("Error: IOException in getConsoleInputWithTimeout() Lambda");
+                    return null;
+                }
+            };
+
         try {
-            if (inputScanner.hasNextLine()) {
-                return inputScanner.nextLine();
-            } else {
-                return null;
+            Future<String> result = ex.submit(stringCallable);
+            try {
+                input = result.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
+            } catch (ExecutionException e) {
+                e.getCause().printStackTrace();
+            } catch (TimeoutException e) {
+                result.cancel(true);
+                throw new TimeoutException("Timeout Encountered in getConsoleInputWithTimeout()");
             }
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-
-    // Ref: https://stackoverflow.com/questions/61807890/user-input-with-a-timeout-in-java
-    private static String getConsoleInputWithTimeout() {
-        Callable<String> callable = () -> inputScanner.hasNextLine() ? inputScanner.nextLine() : null;
-        ExecutorService service = Executors.newFixedThreadPool(1);
-        Future<String> inputFuture = service.submit(callable);
-
-        try {
-            return inputFuture.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | CancellationException e) {
-            System.out.println(e.getMessage());
+        } catch (RejectedExecutionException e) {
+            System.out.println("Error: RejectedExecutionException in getConsoleInputWithTimeout()");
             e.printStackTrace();
-            return null;
-        } catch (TimeoutException e) {
-            //inputFuture.cancel(true);
-            return null;
         } finally {
-            service.shutdown();
+            ex.shutdownNow();
         }
+        return input;
     }
 }
-

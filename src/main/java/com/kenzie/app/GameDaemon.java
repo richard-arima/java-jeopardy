@@ -97,7 +97,9 @@ public class GameDaemon {
                 break;
             case GET_ANSWER_TIMEOUT:
                 // todo: see if current player has correct answer for their currentclue
-                return false;
+                if (input == null) return false;
+                gameState = GameState.QUIT;
+                return true;
                 //setGameState(GameState.QUIT);
             case QUIT:
                 return true;

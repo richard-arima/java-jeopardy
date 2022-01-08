@@ -3,7 +3,7 @@ package com.kenzie.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class CategoriesListDTO {
+public class CategoryListDTO {
     @JsonProperty("categories")
     private List<CategoryDTO> categories;
 

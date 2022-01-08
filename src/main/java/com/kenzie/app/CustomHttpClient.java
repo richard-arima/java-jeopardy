@@ -1,13 +1,11 @@
 package com.kenzie.app;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
 
 public class CustomHttpClient {
     public static final String END_POINT_BASE_URL = "https://jservice.kenzie.academy";
@@ -53,11 +51,11 @@ public class CustomHttpClient {
         return listDTO;
     }
 
-    public CategoriesListDTO getCategories() {
-        return (CategoriesListDTO)getListDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoriesListDTO.class);
+    public CategoryListDTO getCategories() {
+        return (CategoryListDTO)getListDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
     }
 
-    public CluesListDTO getCluesWithParameters(String... args) {
+    public ClueListDTO getCluesWithParameters(String... args) {
         if((args.length & 1) == 1) {
             // maybe throw an exception for invalid amount of args
             return null;
@@ -70,6 +68,6 @@ public class CustomHttpClient {
             sb.append("&");
         }
         sb.deleteCharAt(sb.length() - 1);
-        return (CluesListDTO)getListDTO(sb.toString(), CluesListDTO.class);
+        return (ClueListDTO)getListDTO(sb.toString(), ClueListDTO.class);
     }
 }

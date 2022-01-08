@@ -1,7 +1,5 @@
 package com.kenzie.app;
 
-import java.util.List;
-
 enum GameState {
     SETUP(1),
     TO_CONSOLE(2),
@@ -55,8 +53,8 @@ public class GameDaemon {
         this.gameState = GameState.SETUP; // This is here for future implementation of setup and asynchronous methods
         // get info from web
         httpClient = new CustomHttpClient();
-        CategoriesListDTO categories = httpClient.getCategories();
-        CluesListDTO clues = httpClient.getCluesWithParameters("category", "1", "value", "100");
+        CategoryListDTO categories = httpClient.getCategories();
+        ClueListDTO clues = httpClient.getCluesWithParameters("category", "1", "value", "100");
 
         this.gameState = GameState.GET_NUM_PLAYERS;
     }

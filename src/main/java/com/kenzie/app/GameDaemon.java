@@ -56,6 +56,7 @@ public class GameDaemon {
         // get info from web
         httpClient = new CustomHttpClient();
         CategoriesListDTO categories = httpClient.getCategories();
+        CluesListDTO clues = httpClient.getCluesWithParameters("category", "1", "value", "100");
 
         this.gameState = GameState.GET_NUM_PLAYERS;
     }

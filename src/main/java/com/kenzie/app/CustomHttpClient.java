@@ -12,6 +12,7 @@ import java.util.List;
 public class CustomHttpClient {
     public static final String END_POINT_BASE_URL = "https://jservice.kenzie.academy";
     public static final String END_POINT_GET_CATEGORIES = "/api/categories";
+    public static final String END_POINT_GET_CLUES = "/api/clues";
 
     public String sendGET(String UrlString) {
         HttpClient client = HttpClient.newHttpClient();
@@ -36,19 +37,39 @@ public class CustomHttpClient {
         }
     }
 
-    public CategoriesListDTO getCategories() {
+    public Object getListDTO(String URL, Class<?> cls) {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        String httpResponse = sendGET(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES);
-        CategoriesListDTO categoriesListDTO = null;
+        String httpResponse = sendGET(URL);
+        Object listDTO = null;
         try {
-            categoriesListDTO = objectMapper.readValue(httpResponse, CategoriesListDTO.class);
+            listDTO = objectMapper.readValue(httpResponse, cls);
         } catch (IOException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
             return null;
         }
 
-        return categoriesListDTO;
+        return listDTO;
+    }
+
+    public CategoriesListDTO getCategories() {
+        return (CategoriesListDTO)getListDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoriesListDTO.class);
+    }
+
+    public CluesListDTO getCluesWithParameters(String... args) {
+        if((args.length & 1) == 1) {
+            // maybe throw an exception for invalid amount of args
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES + "?");
+        for (int i = 0; i < args.length; i += 2) {
+            sb.append(args[i]);
+            sb.append("=");
+            sb.append(args[i + 1]);
+            sb.append("&");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return (CluesListDTO)getListDTO(sb.toString(), CluesListDTO.class);
     }
 }

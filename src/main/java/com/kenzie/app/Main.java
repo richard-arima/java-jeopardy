@@ -62,13 +62,21 @@ public class Main extends Application {
                     break;
                 case GET_GAME_TYPE:
                     System.out.print("What type of game would you like to play?\n" +
-                            "  1) Single Category\n" +
-                            "  2) Mixed Random Categories\n" +
+                            "  1) Mixed Random Categories\n" +
                             "  3) Full Jeopardy Round\n=> ");
                     break;
                 case GET_CATEGORY:
                     // todo: get categories
                     // todo: format them and show to users and ask for response
+                    switch (gameDaemon.getGameType()) {
+                        case MIXED_RANDOM_CATEGORIES:
+                            System.out.println("Mixed Random Category incomplete");
+                            break;
+                        case FULL_JEOPARDY:
+                            System.out.println("Full Jeopardy incomplete");
+                            break;
+                        default:
+                    }
                 case SHOW_RULES:
                 case GET_ANSWER_TIMEOUT:
                     System.out.print("Your Answer is => ");

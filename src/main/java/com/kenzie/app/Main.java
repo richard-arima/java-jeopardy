@@ -35,6 +35,14 @@ public class Main extends Application {
     public static void main(String[] args) {
         gameDaemon = GameDaemon.getInstance();
 
+        // NEW MAIN --------->>>>>>>>>>>>>>>
+
+        if (!playGUI()) {
+            playConsole();
+        }
+
+        if (true) return;
+
         // GUI execution --------------------------------------------------------------------------
         launch(args);
 
@@ -66,8 +74,6 @@ public class Main extends Application {
                             "  3) Full Jeopardy Round\n=> ");
                     break;
                 case GET_CATEGORY:
-                    // todo: get categories
-                    // todo: format them and show to users and ask for response
                     switch (gameDaemon.getGameType()) {
                         case MIXED_RANDOM_CATEGORIES:
                             System.out.println("Mixed Random Category incomplete");
@@ -90,6 +96,8 @@ public class Main extends Application {
             try {
                 if ((gameState.getValue() & GameState.TIMEOUT.getValue()) == GameState.TIMEOUT.getValue()) {
                     inputResponse = getConsoleInputWithTimeout();
+                } else if ((gameState.getValue() & GameState.FALLTHROUGH.getValue()) == GameState.FALLTHROUGH.getValue()) {
+                    // do nothing, this is a situation that does not require a response (fall through).
                 } else {
                     inputResponse = getConsoleInput();
                 }
@@ -113,7 +121,160 @@ public class Main extends Application {
         System.exit(0);
     }
 
+    // Console Methods ----------------------------------------------------------------------------
+
+    private static boolean playConsole() {
+        System.out.println(CONSOLE_WELCOME_MESSAGE + CONSOLE_PADDING);
+
+        boolean continuePlay = true;
+
+        do {
+            getNumPlayers();
+            getGameType();
+            if (!gameDaemon.setupRandomCategoriesGame()) {
+                System.out.println("Error: Could not setup game, Terminating.");
+                return false;
+            }
+            printRules();
+
+            // game play
+
+        } while (getContinuePlay());
+        return true;
+    }
+
+    private static void getNumPlayers() {
+        while (true) {
+            System.out.print("Please enter the number of players (1 or 2)\n=> ");
+            int inputAsInt;
+            try {
+                inputAsInt = Integer.parseInt(getConsoleInput());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid Entry, please try again.\n");
+                continue;
+            }
+
+            if (gameDaemon.setNumberOfPlayers(inputAsInt)) {
+                break;
+            } else {
+                System.out.println("Invalid Entry, please try again.\n");
+            }
+        }
+    }
+
+    private static void getGameType() {
+        boolean valid = false;
+        while (!valid) {
+            System.out.print("What type of game would you like to play?\n" +
+                             "  1) Mixed Random Categories\n" +
+                             "  2) Full Jeopardy Round\n=> ");
+
+            int inputAsInt;
+            try {
+                inputAsInt = Integer.parseInt(getConsoleInput());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid Entry, please try again.\n");
+                continue;
+            }
+
+            switch (inputAsInt) {
+                case 1:
+                    gameDaemon.setGameType(GameType.MIXED_RANDOM_CATEGORIES);
+                    valid = true;
+                    break;
+                case 2:
+                    gameDaemon.setGameType(GameType.FULL_JEOPARDY);
+                    valid = true;
+                    break;
+                default:
+                    System.out.println("Invalid Entry, please try again.\n");
+            }
+        }
+    }
+
+    private static boolean getContinuePlay() {
+        while (true) {
+            System.out.print("Would you like to play again? (y/n)\n=> ");
+            String playAgain = getConsoleInput().trim();
+            if (playAgain.compareToIgnoreCase("y") == 0) {
+                System.out.print("\n\n");
+                return true;
+            } else if (playAgain.compareToIgnoreCase("n") == 0) {
+                return false;
+            } else {
+                System.out.println("Invalid Entry, please try again.\n");
+            }
+        }
+    }
+
+    private static void printRules() {
+        System.out.println("\n\nThese are the rules!!!!!\n");
+    }
+
+    private static String getConsoleInput()
+            throws NoSuchElementException, IllegalStateException {
+        try {
+            return new BufferedReader(new InputStreamReader(System.in)).readLine();
+        } catch (IOException e) {
+            System.out.println("Error: IOException in getConsoleInput()");
+            return null;
+        }
+    }
+
+    // Parses string to a positive integer within range specified. -1 on any error otherwise
+    private static int parseStringInNumberRange(String inputString, int rangeMin, int rangeMax) {
+        try {
+            int inputAsInt = Integer.parseInt(inputString);
+            if ((inputAsInt < rangeMin) || (inputAsInt > rangeMax)) {
+                return -1;
+            }
+            return inputAsInt;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    // based on: https://pretagteam.com/question/user-input-with-a-timeout-in-java
+    public static String getConsoleInputWithTimeout() throws InterruptedException, TimeoutException {
+        ExecutorService ex = Executors.newSingleThreadExecutor();
+        String input = null;
+        Callable<String> stringCallable = () -> {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+            try {
+                while (!bufferedReader.ready()) {
+                    Thread.sleep(50);
+                }
+                return bufferedReader.readLine();
+            } catch (IOException e) {
+                System.out.println("Error: IOException in getConsoleInputWithTimeout() Lambda");
+                return null;
+            }
+        };
+
+        try {
+            Future<String> result = ex.submit(stringCallable);
+            try {
+                input = result.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
+            } catch (ExecutionException e) {
+                e.getCause().printStackTrace();
+            } catch (TimeoutException e) {
+                result.cancel(true);
+                throw new TimeoutException("Timeout Encountered in getConsoleInputWithTimeout()");
+            }
+        } catch (RejectedExecutionException e) {
+            System.out.println("Error: RejectedExecutionException in getConsoleInputWithTimeout()");
+            e.printStackTrace();
+        } finally {
+            ex.shutdownNow();
+        }
+        return input;
+    }
+
     // GUI Methods --------------------------------------------------------------------------------
+
+    private static boolean playGUI() {
+        return false;
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -163,55 +324,5 @@ public class Main extends Application {
     public void btnToConsole(ActionEvent actionEvent) {
         gameDaemon.setGameState(GameState.TO_CONSOLE);
         Platform.exit();
-    }
-
-
-    // Console Methods ----------------------------------------------------------------------------
-
-    private static String getConsoleInput()
-            throws NoSuchElementException, IllegalStateException
-    {
-        try {
-            return new BufferedReader(new InputStreamReader(System.in)).readLine();
-        } catch (IOException e) {
-            System.out.println("Error: IOException in getConsoleInput()");
-            return null;
-        }
-    }
-
-    // based on: https://pretagteam.com/question/user-input-with-a-timeout-in-java
-    public static String getConsoleInputWithTimeout() throws InterruptedException, TimeoutException {
-        ExecutorService ex = Executors.newSingleThreadExecutor();
-        String input = null;
-        Callable<String> stringCallable = () -> {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-                try {
-                    while (!bufferedReader.ready()) {
-                        Thread.sleep(50);
-                    }
-                    return bufferedReader.readLine();
-                } catch (IOException e) {
-                    System.out.println("Error: IOException in getConsoleInputWithTimeout() Lambda");
-                    return null;
-                }
-            };
-
-        try {
-            Future<String> result = ex.submit(stringCallable);
-            try {
-                input = result.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
-                e.getCause().printStackTrace();
-            } catch (TimeoutException e) {
-                result.cancel(true);
-                throw new TimeoutException("Timeout Encountered in getConsoleInputWithTimeout()");
-            }
-        } catch (RejectedExecutionException e) {
-            System.out.println("Error: RejectedExecutionException in getConsoleInputWithTimeout()");
-            e.printStackTrace();
-        } finally {
-            ex.shutdownNow();
-        }
-        return input;
     }
 }

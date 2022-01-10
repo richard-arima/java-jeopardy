@@ -37,7 +37,7 @@ public class CustomHttpClient {
         }
     }
 
-    public Object getListDTO(String URL, Class<?> cls) {
+    public Object getDTO(String URL, Class<?> cls) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         String httpResponse = sendGET(URL);
@@ -74,7 +74,7 @@ public class CustomHttpClient {
     }
 
     public CategoryListDTO getCategories() {
-        return (CategoryListDTO)getListDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
+        return (CategoryListDTO) getDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
     }
 
     public ClueListDTO getCluesWithParameters(String... args) {
@@ -90,6 +90,13 @@ public class CustomHttpClient {
             sb.append("&");
         }
         sb.deleteCharAt(sb.length() - 1);
-        return (ClueListDTO)getListDTO(sb.toString(), ClueListDTO.class);
+        return (ClueListDTO) getDTO(sb.toString(), ClueListDTO.class);
+    }
+
+    public ClueDTO getClueById(int id) {
+        StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES);
+        sb.append("/");
+        sb.append(String.valueOf(id));
+        return (ClueDTO) getDTO(sb.toString(), ClueDTO.class);
     }
 }

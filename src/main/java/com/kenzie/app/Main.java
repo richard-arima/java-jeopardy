@@ -283,7 +283,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle(GAME_TITLE);
-
         Parent root = null;
         try {
             root = FXMLLoader.load(Objects.requireNonNull(getClass().

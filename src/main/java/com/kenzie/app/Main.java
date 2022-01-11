@@ -15,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.*;
 
@@ -24,9 +23,11 @@ public class Main extends Application {
     public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
 
     public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
-    public static final String CONSOLE_GOODBYE_MESSAGE = "Thank you for playing with us today :D\nGoodbye!";
+    public static final String CONSOLE_GOODBYE_MESSAGE =
+            "Thank you for playing with us today :D\nGoodbye!";
 
     private static GameDaemon gameDaemon = null;
+    private static boolean playConsole = false;
 
     private Scene welcomeScene;
     @FXML
@@ -35,31 +36,13 @@ public class Main extends Application {
     public static void main(String[] args) {
         gameDaemon = GameDaemon.getInstance();
 
-        // Console Execution -----------------------------------------------------------------------
-
-        if (!playGUI()) {
-            Platform.exit();
+        launch(args);
+        if (playConsole) {
             playConsole();
         }
-
-        if (true) return; // TEMP FOR CONSOLE TESTING
-
-        // GUI execution ---------------------------------------------------------------------------
-        launch(args);
-
-//        switch (gameDaemon.getGameState()) {
-//            case QUIT:
-//                return;
-//            case TO_CONSOLE:
-//                gameDaemon.setGameState(GameState.GET_NUM_PLAYERS);
-//                break;
-//            default:
-//                System.out.println("Error: Unexpected gameState from getGameState");
-//        }
-//        System.exit(0);
     }
 
-    // Console Methods ----------------------------------------------------------------------------=
+    // Console Methods -----------------------------------------------------------------------------
 
     private static boolean playConsole() {
         System.out.println(CONSOLE_WELCOME_MESSAGE + "\n");
@@ -86,18 +69,20 @@ public class Main extends Application {
                 getConsoleInput();
 
                 System.out.println( "Q: " + currentClueDTO.getQuestion());
-                System.out.println("A -- " + currentClueDTO.getAnswer()); // DEBUG ============
+                System.out.println("A --> " + currentClueDTO.getAnswer()); // DEBUG ===================== DEBUG
 
-                String userAnswer = null;
+                String userAnswer;
                 try {
-                    userAnswer = getConsoleInputWithTimeout();
+                    userAnswer = getConsoleInputWithTimeout().trim();
                     if (gameDaemon.reportAnswer(userAnswer)) {
                         System.out.println("Correct!");
                     } else {
-                        System.out.println("Incorrect!\nThe correct answer was... " + currentClueDTO.getAnswer());
+                        System.out.println("Incorrect!\nThe correct answer was... " +
+                                currentClueDTO.getAnswer());
                     }
                 } catch (TimeoutException e) {
-                    System.out.println("Times up! Sorry!!\nThe correct answer was... " + currentClueDTO.getAnswer());
+                    System.out.println("Times up! Sorry!!\nThe correct answer was... " +
+                            currentClueDTO.getAnswer());
                     gameDaemon.reportAnswer(null);
                 }
             } while (gameDaemon.getCurrentPlayer() != -1);
@@ -199,26 +184,26 @@ public class Main extends Application {
 
                 StringBuilder sb = new StringBuilder("Player " + (winningPlayers.get(0) + 1) + ",");
                 for (int i = 1; i < winningPlayers.size() - 1; i++) {
-                    sb.append(" ");
-                    sb.append("Player " + (winningPlayers.get(i) + 1));
-                    sb.append(",");
+                    sb.append(" ").append("Player ").append(winningPlayers.get(i) + 1).append(",");
                 }
                 sb.deleteCharAt(sb.length() - 1);
                 if (winningPlayers.size() > 1) {
                     sb.append(" & ");
-                    sb.append("Player " + (winningPlayers.get(winningPlayers.size() - 1) + 1));
+                    sb.append("Player ").append(winningPlayers.get(winningPlayers.size() - 1) + 1);
                 }
                 System.out.println("\n\nThe winning score is " + winningScore + ", held by " +
-                        sb.toString() + "!! " + getExpression(winningScore));
+                        sb + "!! " + getExpression(winningScore));
             } else {
-                System.out.println("\n\nYour score is " + winningScore + "!! " + getExpression(winningScore));
+                System.out.println("\n\nYour score is " + winningScore +
+                        "!! " + getExpression(winningScore));
             }
         }
     }
 
     private static String getExpression(int score) {
         String expression = "";
-        int percentCorrect = (int)(((double)score / (double)GameDaemon.GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER) * 10);
+        int percentCorrect = (int)(((double)score /
+                (double)GameDaemon.GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER) * 10);
         switch (percentCorrect) {
             case 10:
                 expression = "Wow!!! PERFECT ROUND";
@@ -248,8 +233,7 @@ public class Main extends Application {
         return expression;
     }
 
-    private static String getConsoleInput()
-            throws NoSuchElementException, IllegalStateException {
+    private static String getConsoleInput() {
         try {
             return new BufferedReader(new InputStreamReader(System.in)).readLine();
         } catch (IOException e) {
@@ -296,20 +280,18 @@ public class Main extends Application {
 
     // GUI Methods ---------------------------------------------------------------------------------
 
-    private static boolean playGUI() {
-        return false;
-    }
-
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         primaryStage.setTitle(GAME_TITLE);
 
         Parent root = null;
         try {
             root = FXMLLoader.load(Objects.requireNonNull(getClass().
                     getResource("/" + GAME_TITLE.replaceAll(" ", "") + ".fxml")));
-        } catch (Exception e) {
-            String s = e.getMessage();
+        } catch (IOException e) {
+            System.out.println("Error: Could not load FXML file: " + e.getMessage());
+            playConsole = true;
+            Platform.exit();
         }
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
@@ -319,10 +301,6 @@ public class Main extends Application {
 
     @Override
     public void stop() {
-//        if (gameDaemon.getGameState() == GameState.TO_CONSOLE) {
-//            return;
-//        }
-//        gameDaemon.setGameState(GameState.QUIT);
     }
 
 
@@ -346,7 +324,7 @@ public class Main extends Application {
     }
 
     public void btnToConsole(ActionEvent actionEvent) {
-        //gameDaemon.setGameState(GameState.TO_CONSOLE);
+        playConsole = true;
         Platform.exit();
     }
 }

@@ -74,11 +74,11 @@ public class CustomHttpClient {
     }
 
     public CategoryListDTO getCategories() {
-        return (CategoryListDTO) getDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
+        return (CategoryListDTO)getDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
     }
 
     public ClueListDTO getCluesWithParameters(String... args) {
-        if((args.length & 1) == 1) {
+        if ((args.length & 1) == 1) {
             // Maybe throw an exception for invalid amount of args
             return null;
         }
@@ -90,13 +90,13 @@ public class CustomHttpClient {
             sb.append("&");
         }
         sb.deleteCharAt(sb.length() - 1);
-        return (ClueListDTO) getDTO(sb.toString(), ClueListDTO.class);
+        return (ClueListDTO)getDTO(sb.toString(), ClueListDTO.class);
     }
 
     public ClueDTO getClueById(int id) {
         StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES);
         sb.append("/");
         sb.append(String.valueOf(id));
-        return (ClueDTO) getDTO(sb.toString(), ClueDTO.class);
+        return (ClueDTO)getDTO(sb.toString(), ClueDTO.class);
     }
 }

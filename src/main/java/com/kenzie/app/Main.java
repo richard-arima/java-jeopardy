@@ -14,17 +14,17 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.*;
 
 public class Main extends Application {
     public static final String GAME_TITLE = "Kenzie Quiz Bowl"; // also used for resource file names
-    public static final int GAME_INPUT_TIMEOUT = 5; // in seconds
+    public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
 
     public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
     public static final String CONSOLE_GOODBYE_MESSAGE = "Thank you for playing with us today :D\nGoodbye!";
-    public static final String CONSOLE_PADDING = "\n";
 
     private static GameDaemon gameDaemon = null;
 
@@ -35,111 +35,78 @@ public class Main extends Application {
     public static void main(String[] args) {
         gameDaemon = GameDaemon.getInstance();
 
-        // NEW MAIN --------->>>>>>>>>>>>>>>
+        // Console Execution -----------------------------------------------------------------------
 
         if (!playGUI()) {
+            Platform.exit();
             playConsole();
         }
 
-        if (true) return;
+        if (true) return; // TEMP FOR CONSOLE TESTING
 
-        // GUI execution --------------------------------------------------------------------------
+        // GUI execution ---------------------------------------------------------------------------
         launch(args);
 
-        switch (gameDaemon.getGameState()) {
-            case QUIT:
-                return;
-            case TO_CONSOLE:
-                gameDaemon.setGameState(GameState.GET_NUM_PLAYERS);
-                break;
-            default:
-                System.out.println("Error: Unexpected gameState from getGameState");
-        }
-
-        // Console execution ----------------------------------------------------------------------
-        System.out.println(CONSOLE_WELCOME_MESSAGE + CONSOLE_PADDING);
-
-        String inputResponse = "";
-        GameState gameState;
-        while ((gameState = gameDaemon.getGameState()) != GameState.QUIT) {
-            switch (gameState) {
-                case TO_CONSOLE:
-                    gameDaemon.setGameState(GameState.GET_NUM_PLAYERS);
-                case GET_NUM_PLAYERS:
-                    System.out.print("Please enter the number of players (1 or 2)\n=> ");
-                    break;
-                case GET_GAME_TYPE:
-                    System.out.print("What type of game would you like to play?\n" +
-                            "  1) Mixed Random Categories\n" +
-                            "  3) Full Jeopardy Round\n=> ");
-                    break;
-                case GET_CATEGORY:
-                    switch (gameDaemon.getGameType()) {
-                        case MIXED_RANDOM_CATEGORIES:
-                            System.out.println("Mixed Random Category incomplete");
-                            break;
-                        case FULL_JEOPARDY:
-                            System.out.println("Full Jeopardy incomplete");
-                            break;
-                        default:
-                    }
-                case SHOW_RULES:
-                case GET_ANSWER_TIMEOUT:
-                    System.out.print("Your Answer is => ");
-                    break;
-                case QUIT:
-                    break;
-                default:
-                    // This shouldn't happen
-                    System.out.println("ERROR, UNEXPECTED SWITCH " + gameState + " in main()");
-            }
-            try {
-                if ((gameState.getValue() & GameState.TIMEOUT.getValue()) == GameState.TIMEOUT.getValue()) {
-                    inputResponse = getConsoleInputWithTimeout();
-                } else if ((gameState.getValue() & GameState.FALLTHROUGH.getValue()) == GameState.FALLTHROUGH.getValue()) {
-                    // do nothing, this is a situation that does not require a response (fall through).
-                } else {
-                    inputResponse = getConsoleInput();
-                }
-            } catch (TimeoutException e) {
-                // todo: User has timed out for response,
-                System.out.println("TIMEOUT");
-                System.out.println(e.getMessage());
-                inputResponse = null;
-            } catch (NoSuchElementException | IllegalStateException | InterruptedException e) {
-                System.out.println("Error: Scanner could not open or had another internal error.");
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-
-            if (!gameDaemon.reportInput(inputResponse)) {
-                System.out.println("Invalid Entry, please try again.\n");
-            }
-        }
-
-        System.out.println(CONSOLE_PADDING + CONSOLE_GOODBYE_MESSAGE);
-        System.exit(0);
+//        switch (gameDaemon.getGameState()) {
+//            case QUIT:
+//                return;
+//            case TO_CONSOLE:
+//                gameDaemon.setGameState(GameState.GET_NUM_PLAYERS);
+//                break;
+//            default:
+//                System.out.println("Error: Unexpected gameState from getGameState");
+//        }
+//        System.exit(0);
     }
 
-    // Console Methods ----------------------------------------------------------------------------
+    // Console Methods ----------------------------------------------------------------------------=
 
     private static boolean playConsole() {
-        System.out.println(CONSOLE_WELCOME_MESSAGE + CONSOLE_PADDING);
-
-        boolean continuePlay = true;
+        System.out.println(CONSOLE_WELCOME_MESSAGE + "\n");
 
         do {
             getNumPlayers();
             getGameType();
-            if (!gameDaemon.setupRandomCategoriesGame()) {
-                System.out.println("Error: Could not setup game, Terminating.");
+            System.out.print("\nPreparing game...");
+            if (!gameDaemon.setupGame()) {
+                System.out.println("\rError: Could not setup game, Terminating.");
                 return false;
             }
+            System.out.println("\rGame ready!" + "\n");
             printRules();
 
-            // game play
+            // Game play
+            do {
+                int currentPlayer = gameDaemon.getCurrentPlayer();
+                ClueDTO currentClueDTO = gameDaemon.getCurrentClueDTO();
+                System.out.println("\nPlayer " + (currentPlayer + 1) +
+                        " - round " + (gameDaemon.getCurrentQuestion() + 1) +
+                        ") The category is, " + currentClueDTO.getCategory().getTitle() +
+                        ".\nPress enter when ready.");
+                getConsoleInput();
 
+                System.out.println( "Q: " + currentClueDTO.getQuestion());
+                System.out.println("A -- " + currentClueDTO.getAnswer()); // DEBUG ============
+
+                String userAnswer = null;
+                try {
+                    userAnswer = getConsoleInputWithTimeout();
+                    if (gameDaemon.reportAnswer(userAnswer)) {
+                        System.out.println("Correct!");
+                    } else {
+                        System.out.println("Incorrect!\nThe correct answer was... " + currentClueDTO.getAnswer());
+                    }
+                } catch (TimeoutException e) {
+                    System.out.println("Times up! Sorry!!\nThe correct answer was... " + currentClueDTO.getAnswer());
+                    gameDaemon.reportAnswer(null);
+                }
+            } while (gameDaemon.getCurrentPlayer() != -1);
+
+            printResults();
+            gameDaemon.resetGame();
         } while (getContinuePlay());
+
+        System.out.println("\n" + CONSOLE_GOODBYE_MESSAGE);
         return true;
     }
 
@@ -148,7 +115,7 @@ public class Main extends Application {
             System.out.print("Please enter the number of players (1 or 2)\n=> ");
             int inputAsInt;
             try {
-                inputAsInt = Integer.parseInt(getConsoleInput());
+                inputAsInt = Integer.parseInt(getConsoleInput().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid Entry, please try again.\n");
                 continue;
@@ -166,12 +133,12 @@ public class Main extends Application {
         boolean valid = false;
         while (!valid) {
             System.out.print("What type of game would you like to play?\n" +
-                             "  1) Mixed Random Categories\n" +
+                             "  1) Mixed Values Random Categories\n" +
                              "  2) Full Jeopardy Round\n=> ");
 
             int inputAsInt;
             try {
-                inputAsInt = Integer.parseInt(getConsoleInput());
+                inputAsInt = Integer.parseInt(getConsoleInput().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid Entry, please try again.\n");
                 continue;
@@ -179,7 +146,7 @@ public class Main extends Application {
 
             switch (inputAsInt) {
                 case 1:
-                    gameDaemon.setGameType(GameType.MIXED_RANDOM_CATEGORIES);
+                    gameDaemon.setGameType(GameType.RANDOM);
                     valid = true;
                     break;
                 case 2:
@@ -194,7 +161,7 @@ public class Main extends Application {
 
     private static boolean getContinuePlay() {
         while (true) {
-            System.out.print("Would you like to play again? (y/n)\n=> ");
+            System.out.print("\nWould you like to play again? (y/n)\n=> ");
             String playAgain = getConsoleInput().trim();
             if (playAgain.compareToIgnoreCase("y") == 0) {
                 System.out.print("\n\n");
@@ -208,7 +175,77 @@ public class Main extends Application {
     }
 
     private static void printRules() {
-        System.out.println("\n\nThese are the rules!!!!!\n");
+        System.out.println("\n\n" + gameDaemon.getGameRules() + "\n");
+    }
+
+    private static void printResults() {
+        int[] scores = gameDaemon.getPlayersScore();
+        int winningScore;
+
+        if (scores != null) {
+            winningScore = scores[0];
+            ArrayList <Integer> winningPlayers = new ArrayList<>();
+            winningPlayers.add(0);
+            if (gameDaemon.getNumberOfPlayers() > 1) {
+                for (int i = 1; i < gameDaemon.getNumberOfPlayers(); i++) {
+                    if (scores[i] > winningScore) {
+                        winningScore = scores[i];
+                        winningPlayers.clear();
+                        winningPlayers.add(i);
+                    } else if (scores[i] == winningScore) {
+                        winningPlayers.add(i);
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder("Player " + (winningPlayers.get(0) + 1) + ",");
+                for (int i = 1; i < winningPlayers.size() - 1; i++) {
+                    sb.append(" ");
+                    sb.append("Player " + (winningPlayers.get(i) + 1));
+                    sb.append(",");
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                if (winningPlayers.size() > 1) {
+                    sb.append(" & ");
+                    sb.append("Player " + (winningPlayers.get(winningPlayers.size() - 1) + 1));
+                }
+                System.out.println("\n\nThe winning score is " + winningScore + ", held by " +
+                        sb.toString() + "!! " + getExpression(winningScore));
+            } else {
+                System.out.println("\n\nYour score is " + winningScore + "!! " + getExpression(winningScore));
+            }
+        }
+    }
+
+    private static String getExpression(int score) {
+        String expression = "";
+        int percentCorrect = (int)(((double)score / (double)GameDaemon.GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER) * 10);
+        switch (percentCorrect) {
+            case 10:
+                expression = "Wow!!! PERFECT ROUND";
+                break;
+            case 9:
+            case 8:
+                expression = "Very well done";
+                break;
+            case 7:
+            case 6:
+                expression = "Not bad :)";
+                break;
+            case 5:
+            case 4:
+                expression = "Hope you had fun at least!";
+                break;
+            case 3:
+            case 2:
+            case 1:
+                expression = "I mean it could be worse... :{";
+                break;
+            case 0:
+                expression = "Ouch... Maybe read more often";
+                break;
+            default:
+        }
+        return expression;
     }
 
     private static String getConsoleInput()
@@ -221,21 +258,8 @@ public class Main extends Application {
         }
     }
 
-    // Parses string to a positive integer within range specified. -1 on any error otherwise
-    private static int parseStringInNumberRange(String inputString, int rangeMin, int rangeMax) {
-        try {
-            int inputAsInt = Integer.parseInt(inputString);
-            if ((inputAsInt < rangeMin) || (inputAsInt > rangeMax)) {
-                return -1;
-            }
-            return inputAsInt;
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
     // based on: https://pretagteam.com/question/user-input-with-a-timeout-in-java
-    public static String getConsoleInputWithTimeout() throws InterruptedException, TimeoutException {
+    public static String getConsoleInputWithTimeout() throws TimeoutException {
         ExecutorService ex = Executors.newSingleThreadExecutor();
         String input = null;
         Callable<String> stringCallable = () -> {
@@ -255,7 +279,7 @@ public class Main extends Application {
             Future<String> result = ex.submit(stringCallable);
             try {
                 input = result.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 e.getCause().printStackTrace();
             } catch (TimeoutException e) {
                 result.cancel(true);
@@ -270,7 +294,7 @@ public class Main extends Application {
         return input;
     }
 
-    // GUI Methods --------------------------------------------------------------------------------
+    // GUI Methods ---------------------------------------------------------------------------------
 
     private static boolean playGUI() {
         return false;
@@ -295,10 +319,10 @@ public class Main extends Application {
 
     @Override
     public void stop() {
-        if (gameDaemon.getGameState() == GameState.TO_CONSOLE) {
-            return;
-        }
-        gameDaemon.setGameState(GameState.QUIT);
+//        if (gameDaemon.getGameState() == GameState.TO_CONSOLE) {
+//            return;
+//        }
+//        gameDaemon.setGameState(GameState.QUIT);
     }
 
 
@@ -309,7 +333,7 @@ public class Main extends Application {
         }
         this.btnToConsole = new Button("Go To Console Mode");
         this.btnToConsole.setOnAction(e -> {
-            gameDaemon.setGameState(GameState.TO_CONSOLE);
+            //gameDaemon.setGameState(GameState.TO_CONSOLE);
             Platform.exit();
         });
         //this.btnToConsole.setStyle("-fx-background-color: darkslateblue; -fx-text-fill: white;");
@@ -322,7 +346,7 @@ public class Main extends Application {
     }
 
     public void btnToConsole(ActionEvent actionEvent) {
-        gameDaemon.setGameState(GameState.TO_CONSOLE);
+        //gameDaemon.setGameState(GameState.TO_CONSOLE);
         Platform.exit();
     }
 }

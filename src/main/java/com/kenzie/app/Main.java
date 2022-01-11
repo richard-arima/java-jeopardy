@@ -29,9 +29,8 @@ public class Main extends Application {
     private static GameDaemon gameDaemon = null;
     private static boolean playConsole = false;
 
-    private Scene welcomeScene;
-    @FXML
-    private Button btnToConsole;
+//    @FXML
+//    private Button btnToConsole;
 
     public static void main(String[] args) {
         gameDaemon = GameDaemon.getInstance();
@@ -280,20 +279,29 @@ public class Main extends Application {
 
     // GUI Methods ---------------------------------------------------------------------------------
 
+    private static Stage stage = null;
+    private static Scene welcomeScene = null;
+    private static Scene getPlayersScene = null;
+
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle(GAME_TITLE);
-        Parent root = null;
+        stage = primaryStage;
+        Parent welcome = null;
+        Parent getPlayers = null;
         try {
-            root = FXMLLoader.load(Objects.requireNonNull(getClass().
-                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + ".fxml")));
+            welcome = FXMLLoader.load(Objects.requireNonNull(getClass().
+                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + "Welcome.fxml")));
+            getPlayers = FXMLLoader.load(Objects.requireNonNull(getClass().
+                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + "GetPlayers.fxml")));
         } catch (IOException e) {
             System.out.println("Error: Could not load FXML file: " + e.getMessage());
             playConsole = true;
             Platform.exit();
         }
-        Scene scene = new Scene(root, 600, 400);
-        primaryStage.setScene(scene);
+        welcomeScene = new Scene(welcome, 600, 400);
+        getPlayersScene = new Scene(getPlayers, 600, 400);
+        primaryStage.setScene(welcomeScene);
         primaryStage.setResizable(false);
         primaryStage.show();
     }
@@ -302,28 +310,18 @@ public class Main extends Application {
     public void stop() {
     }
 
-
-    // This function seems as it will be deprecated shortly
-    private void generateWelcomeScene() {
-        if (welcomeScene != null) {
-            return;
-        }
-        this.btnToConsole = new Button("Go To Console Mode");
-        this.btnToConsole.setOnAction(e -> {
-            //gameDaemon.setGameState(GameState.TO_CONSOLE);
-            Platform.exit();
-        });
-        //this.btnToConsole.setStyle("-fx-background-color: darkslateblue; -fx-text-fill: white;");
-
-        StackPane layout = new StackPane();
-        layout.getChildren().add(btnToConsole);
-        //layout.setBackground(new Background(new BackgroundFill(Color.color(0.1, 0.6, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
-        this.welcomeScene = new Scene(layout, 400, 200);
-        welcomeScene.getStylesheets().add(GAME_TITLE.replaceAll(" ", "") + ".css");
-    }
-
     public void btnToConsole(ActionEvent actionEvent) {
         playConsole = true;
         Platform.exit();
+    }
+
+    public void btnOnePlayerSelected(ActionEvent actionEvent) {
+        gameDaemon.setNumberOfPlayers(1);
+        stage.setScene(getPlayersScene);
+    }
+
+    public void btnTwoPlayerSelected(ActionEvent actionEvent) {
+        gameDaemon.setNumberOfPlayers(2);
+        stage.setScene(getPlayersScene);
     }
 }

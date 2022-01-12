@@ -7,6 +7,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -337,24 +340,36 @@ public class Main extends Application {
 
     public void btnOnePlayerSelected(ActionEvent actionEvent) {
         btnSwap(btnOnePlayer, btnTwoPlayer, 1);
+        gameDaemon.setNumberOfPlayers(1);
     }
 
     public void btnTwoPlayerSelected(ActionEvent actionEvent) {
         btnSwap(btnTwoPlayer, btnOnePlayer, 1);
+        gameDaemon.setNumberOfPlayers(2);
     }
 
     public void btnRandomSelected(ActionEvent actionEvent) {
         btnSwap(btnRandom, btnFullJeopardy, (1<<1));
+        gameDaemon.setGameType(GameType.RANDOM);
     }
 
     public void btnFullJeopardySelected(ActionEvent actionEvent) {
         btnSwap(btnFullJeopardy, btnRandom, (1<<1));
+        gameDaemon.setGameType(GameType.FULL_JEOPARDY);
     }
 
     public void btnBegin(ActionEvent actionEvent) {
         if (gameReady == 3) {
-            txtWelcomeFeedback.setVisible(false);
-            System.out.println("Start game");
+            txtWelcomeFeedback.setVisible(true);
+            txtWelcomeFeedback.setText("Preparing game...");
+            if (!gameDaemon.setupGame()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Could not setup game, Terminating.", ButtonType.OK);
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add("/" + GAME_TITLE.replaceAll(" ", "") + ".css");
+                alert.showAndWait();
+                Platform.exit();
+            }
+            System.out.println("\rGame ready!" + "\n");
             return;
         }
 

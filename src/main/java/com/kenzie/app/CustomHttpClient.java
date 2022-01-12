@@ -84,10 +84,7 @@ public class CustomHttpClient {
         }
         StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES + "?");
         for (int i = 0; i < args.length; i += 2) {
-            sb.append(args[i]);
-            sb.append("=");
-            sb.append(args[i + 1]);
-            sb.append("&");
+            sb.append(args[i]).append("=").append(args[i + 1]).append("&");
         }
         sb.deleteCharAt(sb.length() - 1);
         return (ClueListDTO)getDTO(sb.toString(), ClueListDTO.class);
@@ -95,8 +92,7 @@ public class CustomHttpClient {
 
     public ClueDTO getClueById(int id) {
         StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES);
-        sb.append("/");
-        sb.append(String.valueOf(id));
+        sb.append("/").append(String.valueOf(id));
         return (ClueDTO)getDTO(sb.toString(), ClueDTO.class);
     }
 }

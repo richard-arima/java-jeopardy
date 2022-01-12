@@ -48,6 +48,7 @@ public class GameDaemon {
         currentQuestion = -1;
         gameType = GameType.NONE;
 
+        // ================================ REMOVE BELOW LATER =========================================================
 //        CategoryListDTO categories = httpClient.getCategories();
 //        ClueListDTO clues = httpClient.getCluesWithParameters("category", "1", "value", "100");
     }

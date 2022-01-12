@@ -7,8 +7,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -29,8 +29,6 @@ public class Main extends Application {
     private static GameDaemon gameDaemon = null;
     private static boolean playConsole = false;
 
-//    @FXML
-//    private Button btnToConsole;
 
     public static void main(String[] args) {
         gameDaemon = GameDaemon.getInstance();
@@ -41,7 +39,7 @@ public class Main extends Application {
         }
     }
 
-    // Console Methods -----------------------------------------------------------------------------
+    // Console Specific ----------------------------------------------------------------------------
 
     private static boolean playConsole() {
         System.out.println(CONSOLE_WELCOME_MESSAGE + "\n");
@@ -277,14 +275,27 @@ public class Main extends Application {
         return input;
     }
 
-    // GUI Methods ---------------------------------------------------------------------------------
+    // GUI Specific --------------------------------------------------------------------------------
 
     private static Stage stage = null;
     private static Scene welcomeScene = null;
     private static Scene getPlayersScene = null;
 
+    private static int gameReady;
+
+    @FXML
+    public ToggleButton btnOnePlayer;
+    @FXML
+    public ToggleButton btnTwoPlayer;
+    @FXML
+    public ToggleButton btnRandom;
+    @FXML
+    public ToggleButton btnFullJeopardy;
+    @FXML
+    public Text txtWelcomeFeedback;
+
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(GAME_TITLE);
         stage = primaryStage;
         Parent welcome = null;
@@ -315,13 +326,52 @@ public class Main extends Application {
         Platform.exit();
     }
 
+    public void btnSwap(ToggleButton btnAction, ToggleButton btnDormant, int mask) {
+        gameReady &= (~mask);
+        if (btnAction.isSelected()) {
+            btnDormant.setSelected(false);
+            gameReady += mask;
+        }
+        txtWelcomeFeedback.setVisible(false);
+    }
+
     public void btnOnePlayerSelected(ActionEvent actionEvent) {
-        gameDaemon.setNumberOfPlayers(1);
-        stage.setScene(getPlayersScene);
+        btnSwap(btnOnePlayer, btnTwoPlayer, 1);
     }
 
     public void btnTwoPlayerSelected(ActionEvent actionEvent) {
-        gameDaemon.setNumberOfPlayers(2);
-        stage.setScene(getPlayersScene);
+        btnSwap(btnTwoPlayer, btnOnePlayer, 1);
+    }
+
+    public void btnRandomSelected(ActionEvent actionEvent) {
+        btnSwap(btnRandom, btnFullJeopardy, (1<<1));
+    }
+
+    public void btnFullJeopardySelected(ActionEvent actionEvent) {
+        btnSwap(btnFullJeopardy, btnRandom, (1<<1));
+    }
+
+    public void btnBegin(ActionEvent actionEvent) {
+        if (gameReady == 3) {
+            txtWelcomeFeedback.setVisible(false);
+            System.out.println("Start game");
+            return;
+        }
+
+        switch (gameReady) {
+            case 0:
+                txtWelcomeFeedback.setText("Please select number of players and type of game");
+                break;
+            case 1:
+                txtWelcomeFeedback.setText("Please select type of game");
+                break;
+            case 2:
+                txtWelcomeFeedback.setText("Please select number of players");
+                break;
+            case 3: // Already handled
+            default:
+                // nothing, this is here for code style adherence
+        }
+        txtWelcomeFeedback.setVisible(true);
     }
 }

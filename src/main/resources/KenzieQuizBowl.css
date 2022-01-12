@@ -1,10 +1,12 @@
 /* CSS styling for KenzieQuizBowl windows, buttons, etc... */
 
+/* Stylings augmented from http://fxexperience.com/2011/12/styling-fx-buttons-with-css/ */
+
 .root{
-    -fx-background-color: linear-gradient(#ee4466, #ffaa88);
+    /* -fx-background-color: linear-gradient(#ee4466, #ffaa88); */
+    -fx-background-color: linear-gradient(#303842, #000000);
 }
 
-/* Button stylings augmented from http://fxexperience.com/2011/12/styling-fx-buttons-with-css/ */
 .button {
     -fx-background-color:
         #a6b5c9,
@@ -17,6 +19,59 @@
     -fx-font-family: "Helvetica";
     -fx-font-size: 12px;
     -fx-text-fill: white;
+}
+
+#btnAction {
+    -fx-background-color: #000000, linear-gradient(#09abab 0%, #021c1c 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 1 14 1 14;
+    -fx-text-fill: #242d35;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 16px;
+    -fx-text-fill: #31f4f7;
+}
+
+#btnAction:hover {
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #9b9d9e 0%, #7a7c7d 100%),
+            #7a7c7d,
+            #9b9d9e,
+            radial-gradient(center 50% 50%, radius 100%, #9b9d9e, #7a7c7d);
+}
+
+#btnAction:pressed {
+    -fx-background-color: #000000, linear-gradient(#09abab 0%, #ffffff 100%);
+}
+
+#btnSecondary {
+    -fx-background-color:
+        #a6b5c9,
+        linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
+        linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 1 14 1 14;
+    -fx-text-fill: #242d35;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 13px;
+    -fx-text-fill: #323536;
+}
+
+#btnSecondary:hover {
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #9b9d9e 0%, #7a7c7d 100%),
+            #7a7c7d,
+            #9b9d9e,
+            radial-gradient(center 50% 50%, radius 100%, #9b9d9e, #7a7c7d);
+}
+
+#btnSecondary:selected {
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #9b9d9e 0%, #7a7c7d 100%),
+            #babcbd,
+            #fbfdfe,
+            radial-gradient(center 50% 50%, radius 100%, #9b9d9e, #7a7c7d);
 }
 
 .button:hover {
@@ -42,4 +97,23 @@
     -fx-font-family: "Helvetica";
     -fx-font-size: 12px;
     -fx-text-fill: white;
+}
+
+.toggle-button:hover {
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #9b9d9e 0%, #7a7c7d 100%),
+            #7a7c7d,
+            #9b9d9e,
+            radial-gradient(center 50% 50%, radius 100%, #9b9d9e, #7a7c7d);
+}
+
+.toggle-button:selected {
+    -fx-background-color:
+            linear-gradient(from 0% 93% to 0% 100%, #9b9d9e 0%, #7a7c7d 100%),
+            #babcbd,
+            #fbfdfe,
+            radial-gradient(center 50% 50%, radius 100%, #9b9d9e, #7a7c7d);
+}
+
+.toggle-button:pressed {
 }

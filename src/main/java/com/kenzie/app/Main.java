@@ -27,7 +27,8 @@ class ScenesAndStages {
 
 public class Main extends Application {
     public static final String GAME_TITLE = "Kenzie Quiz Bowl"; // also used for resource file names
-    public static final String GAME_RESOURCE_FILE_BASE = ("/" + GAME_TITLE).replaceAll(" ", "");
+    public static final String GAME_RESOURCE_FILE_BASE =
+            ("/" + GAME_TITLE).replaceAll(" ", "");
 
     public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
     public static final String CONSOLE_GOODBYE_MESSAGE =
@@ -292,18 +293,12 @@ public class Main extends Application {
 
     // GUI Specific --------------------------------------------------------------------------------
 
-//    private static Scene welcomeScene = null;
-//    private static Scene transitionScene = null;
-//    private static Scene playRandomScene = null;
-//    private static ScenesAndStages scenesAndStages = null;
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(GAME_TITLE);
-        Parent welcome = null;
-        Parent transition = null;
-        Parent playRandom = null;
+        Parent welcome;
+        Parent transition;
+        Parent playRandom;
         try {
             FXMLLoader welcomeLoader = new FXMLLoader(getClass().
                     getResource(GAME_RESOURCE_FILE_BASE + "Welcome.fxml"));
@@ -329,10 +324,14 @@ public class Main extends Application {
             scenesAndStages.transitionScene = transitionScene;
             scenesAndStages.playRandomScene = playRandomScene;
 
-            ((WelcomeController)welcomeLoader.getController()).initData(scenesAndStages, gameDaemon);
-            ((WelcomeController)welcomeLoader.getController()).setSetConsolePlayTrue(() -> playConsole = true);
-            ((TransitionController)transitionLoader.getController()).initData(scenesAndStages, gameDaemon);
-            ((PlayRandomController)playRandomLoader.getController()).initData(scenesAndStages, gameDaemon);
+            ((WelcomeController)welcomeLoader.getController()).
+                    initData(scenesAndStages, gameDaemon);
+            ((WelcomeController)welcomeLoader.getController()).
+                    setSetConsolePlayTrue(() -> playConsole = true);
+            ((TransitionController)transitionLoader.getController()).
+                    initData(scenesAndStages, gameDaemon);
+            ((PlayRandomController)playRandomLoader.getController()).
+                    initData(scenesAndStages, gameDaemon);
 
             primaryStage.setScene(welcomeScene);
             primaryStage.setResizable(false);

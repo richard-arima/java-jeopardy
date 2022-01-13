@@ -163,7 +163,8 @@ public class PlayRandomController {
 
     private void fitText() {
         if (txtPlayerAndCategory.getText().length() > 40) {
-            txtPlayerAndCategory.setFont(Font.font(txtPlayerAndCategoryOriginalFont.getFamily(), 30));
+            txtPlayerAndCategory.setFont(
+                    Font.font(txtPlayerAndCategoryOriginalFont.getFamily(), 30));
         }
         if (txtQuestion.getText().length() > 90) {
             txtQuestion.setFont(Font.font(txtQuestionOriginalFont.getFamily(), 30));

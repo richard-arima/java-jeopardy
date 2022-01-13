@@ -22,7 +22,7 @@ public class GameDaemon {
     private int numberOfPlayers = -1; // either 1 or 2 for now, -1 for none set
     private int currentPlayer = -1;
     private int currentQuestion = -1;
-    private int[] playersScore = null;
+    private int[] playersScore;
 
     public static final int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
     public static final int GAME_INPUT_TIMEOUT = 10; // in seconds

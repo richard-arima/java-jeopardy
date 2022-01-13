@@ -1,6 +1,9 @@
 package com.kenzie.app;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 
 public class ClueDTO {
     @JsonProperty("canon")
@@ -23,6 +26,9 @@ public class ClueDTO {
     private String answer;
     @JsonProperty("id")
     private int id;
+
+    @JsonIgnore
+    private ArrayList<String> acceptableAnswers;
 
     public boolean getCanon() {
         return this.canon;
@@ -102,6 +108,14 @@ public class ClueDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public ArrayList<String> getAcceptableAnswers() {
+        return this.acceptableAnswers;
+    }
+
+    public void setAcceptableAnswers(ArrayList<String> acceptableAnswers) {
+        this.acceptableAnswers = acceptableAnswers;
     }
 
     @Override

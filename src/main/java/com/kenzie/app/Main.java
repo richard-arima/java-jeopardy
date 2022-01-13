@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -42,6 +43,36 @@ public class Main extends Application {
         try {
             gameDaemon = GameDaemon.getInstance();
 
+//            String ex1 = "(the james) the jim's effect e.o.f. (this is a possible)";
+//            System.out.println("Original: " + ex1);
+//            ArrayList<String> al1 = gameDaemon.generateAcceptableAnswers(ex1);
+//            System.out.println(al1);
+//            al1.clear();
+//
+//            System.out.println();
+//
+//            String ex2 = "(the  james ) the jim's effect.";
+//            System.out.println("Original: " + ex2);
+//            ArrayList<String> al2 = gameDaemon.generateAcceptableAnswers(ex2);
+//            System.out.println(al2);
+//
+//            String ex3 = "patriots";
+//            System.out.println("Original: " + ex3);
+//            ArrayList<String> al3 = gameDaemon.generateAcceptableAnswers(ex3);
+//            System.out.println(al3);
+//
+//            System.out.println();
+//
+//            String ex4 = "single people";
+//            System.out.println("Original: " + ex4);
+//            ArrayList<String> al4 = gameDaemon.generateAcceptableAnswers(ex4);
+//            System.out.println(al4);
+//
+//            System.out.println();
+//
+//            Platform.exit();
+//            if (true) return;
+
             launch(args);
             if (playConsole) {
                 playConsole();
@@ -71,10 +102,16 @@ public class Main extends Application {
             do {
                 int currentPlayer = gameDaemon.getCurrentPlayer();
                 ClueDTO currentClueDTO = gameDaemon.getCurrentClueDTO();
-                System.out.println("\nPlayer " + (currentPlayer + 1) +
-                        " - round " + (gameDaemon.getCurrentQuestion() + 1) +
-                        ") The category is, " + currentClueDTO.getCategory().getTitle() +
-                        ".\nPress enter when ready.");
+                if (gameDaemon.getNumberOfPlayers() == 1) {
+                    System.out.println("\nRound " + (gameDaemon.getCurrentQuestion() + 1) +
+                            ") The category is, " + currentClueDTO.getCategory().getTitle() +
+                            ".\nPress enter when ready.");
+                } else {
+                    System.out.println("\nPlayer " + (currentPlayer + 1) +
+                            " - round " + (gameDaemon.getCurrentQuestion() + 1) +
+                            ") The category is, " + currentClueDTO.getCategory().getTitle() +
+                            ".\nPress enter when ready.");
+                }
                 getConsoleInput();
 
                 System.out.println( "Q: " + currentClueDTO.getQuestion());

@@ -1,7 +1,11 @@
 package com.kenzie.app;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 enum GameType {
     RANDOM,
@@ -91,6 +95,7 @@ public class GameDaemon {
                 continue;
             }
             ClueDTO clue = httpClient.getClueById(randomNum);
+            clue.setAcceptableAnswers(generateAcceptableAnswers(clue.getAnswer()));
 
             if (currentPlayerIndex == 0) {
                 // this is the case we are doing the first and the rest match
@@ -123,12 +128,53 @@ public class GameDaemon {
         this.playersWithClues.clear();
     }
 
+    // DEBUG ============================================================ MAKE THIS PRIVATE LATER =====
+    public ArrayList<String> generateAcceptableAnswers(String answer) {
+        ArrayList<String> acceptableAnswers = new ArrayList<>();
+        answer = answer.toLowerCase(Locale.ROOT);
+
+        // Remove ( ) from answer and use as acceptable answer
+        acceptableAnswers.add(answer.replaceAll("\\(.*?\\)", "").trim());
+
+        // Add everything within ( ) as a possible answer
+        Matcher m = Pattern.compile("\\((.*?)\\)").matcher(answer);
+        while (m.find()) {
+            acceptableAnswers.add(m.group(1));
+        }
+
+        // take out grammar articles and punctuation from extracted words
+        for (int i = 0; i < acceptableAnswers.size(); i++ ) {
+            acceptableAnswers.add(i, acceptableAnswers.remove(i).
+                    replaceAll("^(the|an|a|and)\\s|\\s+(the|an|a|and)\\s+|\\s+", " ").trim().
+                    replaceAll("'|,|\\.", ""));
+
+        }
+
+        return acceptableAnswers;
+    }
+
     public boolean reportAnswer(String userAnswer) {
         boolean isCorrect = false;
         if (userAnswer == null) {
             isCorrect = false;
         } else {
             // check to see if answer is correct
+            userAnswer = userAnswer.toLowerCase(Locale.ROOT);
+            userAnswer = userAnswer.replaceAll("'|,|\\.|\"", "");
+            for (String answerOption : getCurrentClueDTO().getAcceptableAnswers()) {
+                boolean answerOk = true;
+                for (String answerOptionSplit : answerOption.split(" ")) {
+                    if (!userAnswer.contains(answerOptionSplit)) {
+                        System.out.println();
+                        answerOk = false;
+                        break;
+                    }
+                }
+                if (answerOk) {
+                    isCorrect = true;
+                    break;
+                }
+            }
             if (userAnswer.trim().compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
                 isCorrect = true;
                 this.playersScore[getCurrentPlayer()]++;

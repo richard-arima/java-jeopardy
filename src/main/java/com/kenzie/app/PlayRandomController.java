@@ -54,9 +54,15 @@ public class PlayRandomController {
         }
         this.currentClueDTO = gameDaemon.getCurrentClueDTO();
 
-        txtPlayerAndCategory.setText("Player " + (currentPlayer + 1) + " Round " +
-                (gameDaemon.getCurrentQuestion() + 1) + "\nCategory: " +
-                currentClueDTO.getCategory().getTitle());
+        if (gameDaemon.getNumberOfPlayers() == 1) {
+            txtPlayerAndCategory.setText("Round " +
+                    (gameDaemon.getCurrentQuestion() + 1) + "\nCategory: " +
+                    currentClueDTO.getCategory().getTitle());
+        } else {
+            txtPlayerAndCategory.setText("Player " + (currentPlayer + 1) + " Round " +
+                    (gameDaemon.getCurrentQuestion() + 1) + "\nCategory: " +
+                    currentClueDTO.getCategory().getTitle());
+        }
         txtQuestion.setText("");
         txtAnswer.setText("Press space for clue");
         txtTimeout.setText("");

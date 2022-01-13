@@ -172,13 +172,14 @@ public class GameDaemon {
                 }
                 if (answerOk) {
                     isCorrect = true;
+                    this.playersScore[getCurrentPlayer()]++;
                     break;
                 }
             }
-            if (userAnswer.trim().compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
-                isCorrect = true;
-                this.playersScore[getCurrentPlayer()]++;
-            }
+//            if (userAnswer.trim().compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
+//                isCorrect = true;
+//                this.playersScore[getCurrentPlayer()]++;
+//            }
         }
 
         this.currentPlayer = ++this.currentPlayer % this.numberOfPlayers;

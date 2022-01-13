@@ -1,7 +1,6 @@
 package com.kenzie.app;
 
 import javafx.fxml.FXML;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 
 public class TransitionController {
@@ -33,7 +32,8 @@ public class TransitionController {
         switch (transitionType) {
             case RULES:
                 txtTransitionHeading.setText("Rules");
-                txtTransitionBody.setText(GameDaemon.GAME_RANDOM_RULES);
+                txtTransitionBody.setText(GameDaemon.GAME_RANDOM_RULES +
+                        "\n\nYou may begin typing when question is shown");
                 txtTransitionFooter.setText("Press any key when ready");
                 break;
             case RESULTS:

@@ -27,7 +27,6 @@ class ScenesAndStages {
 
 public class Main extends Application {
     public static final String GAME_TITLE = "Kenzie Quiz Bowl"; // also used for resource file names
-    public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
     public static final String GAME_RESOURCE_FILE_BASE = ("/" + GAME_TITLE).replaceAll(" ", "");
 
     public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
@@ -82,7 +81,7 @@ public class Main extends Application {
 
                 String userAnswer;
                 try {
-                    userAnswer = getConsoleInputWithTimeout().trim();
+                    userAnswer = getConsoleInputWithTimeout();
                     if (gameDaemon.reportAnswer(userAnswer)) {
                         System.out.println("Correct!");
                     } else {
@@ -275,7 +274,7 @@ public class Main extends Application {
         try {
             Future<String> result = ex.submit(stringCallable);
             try {
-                input = result.get(GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
+                input = result.get(GameDaemon.GAME_INPUT_TIMEOUT, TimeUnit.SECONDS);
             } catch (ExecutionException | InterruptedException e) {
                 e.getCause().printStackTrace();
             } catch (TimeoutException e) {

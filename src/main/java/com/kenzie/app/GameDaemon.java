@@ -19,17 +19,19 @@ public class GameDaemon {
 
     private int numberOfCluesOnJService = -1;
     private GameType gameType = GameType.NONE;
-    private int numberOfPlayers = -1; // either 1 or 2 for now
+    private int numberOfPlayers = -1; // either 1 or 2 for now, -1 for none set
     private int currentPlayer = -1;
     private int currentQuestion = -1;
     private int[] playersScore = null;
 
-    public static int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
-    public static String GAME_RANDOM_RULES =
+    public static final int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
+    public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
+    public static final String GAME_RANDOM_RULES =
             "Player(s) given " + GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER + " clues. " +
-            "For each given clue you will have 15 seconds to enter a response. " +
-            "1 Point will be awarded for each correct answer. \nGood Luck :)";
-    public static String GAME_FULL_JEOPARDY_RULES = "";
+            "For each given clue you will have " + GAME_INPUT_TIMEOUT +
+            " seconds to enter a response. " +
+            "1 Point will be awarded for each correct answer.\nGood Luck :)";
+    public static final String GAME_FULL_JEOPARDY_RULES = "";
 
     private GameDaemon() {
         httpClient = new CustomHttpClient();
@@ -127,7 +129,7 @@ public class GameDaemon {
             isCorrect = false;
         } else {
             // check to see if answer is correct
-            if (userAnswer.compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
+            if (userAnswer.trim().compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
                 isCorrect = true;
                 this.playersScore[getCurrentPlayer()]++;
             }
@@ -232,5 +234,9 @@ public class GameDaemon {
 
     public int[] getPlayersScore() {
         return this.playersScore;
+    }
+
+    public int getPlayersWithCluesSize() {
+        return playersWithClues.get(0).size();
     }
 }

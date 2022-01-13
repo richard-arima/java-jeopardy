@@ -2,28 +2,33 @@ package com.kenzie.app;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.concurrent.*;
+
+enum GUITransitionType {
+    RULES,
+    RESULTS
+}
+
+class ScenesAndStages {
+    public Stage stage;
+    public Scene welcomeScene;
+    public Scene transitionScene;
+    public Scene playRandomScene;
+}
 
 public class Main extends Application {
     public static final String GAME_TITLE = "Kenzie Quiz Bowl"; // also used for resource file names
     public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
+    public static final String GAME_RESOURCE_FILE_BASE = ("/" + GAME_TITLE).replaceAll(" ", "");
 
     public static final String CONSOLE_WELCOME_MESSAGE = "Welcome to the " + GAME_TITLE + "!";
     public static final String CONSOLE_GOODBYE_MESSAGE =
@@ -34,11 +39,15 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
-        gameDaemon = GameDaemon.getInstance();
+        try {
+            gameDaemon = GameDaemon.getInstance();
 
-        launch(args);
-        if (playConsole) {
-            playConsole();
+            launch(args);
+            if (playConsole) {
+                playConsole();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -280,113 +289,60 @@ public class Main extends Application {
 
     // GUI Specific --------------------------------------------------------------------------------
 
-    private static Stage stage = null;
-    private static Scene welcomeScene = null;
-    private static Scene getPlayersScene = null;
+//    private static Scene welcomeScene = null;
+//    private static Scene transitionScene = null;
+//    private static Scene playRandomScene = null;
+//    private static ScenesAndStages scenesAndStages = null;
 
-    private static int gameReady;
-
-    @FXML
-    public ToggleButton btnOnePlayer;
-    @FXML
-    public ToggleButton btnTwoPlayer;
-    @FXML
-    public ToggleButton btnRandom;
-    @FXML
-    public ToggleButton btnFullJeopardy;
-    @FXML
-    public Text txtWelcomeFeedback;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle(GAME_TITLE);
-        stage = primaryStage;
         Parent welcome = null;
-        Parent getPlayers = null;
+        Parent transition = null;
+        Parent playRandom = null;
         try {
-            welcome = FXMLLoader.load(Objects.requireNonNull(getClass().
-                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + "Welcome.fxml")));
-            getPlayers = FXMLLoader.load(Objects.requireNonNull(getClass().
-                    getResource("/" + GAME_TITLE.replaceAll(" ", "") + "GetPlayers.fxml")));
-        } catch (IOException e) {
+            FXMLLoader welcomeLoader = new FXMLLoader(getClass().
+                    getResource(GAME_RESOURCE_FILE_BASE + "Welcome.fxml"));
+            welcome = welcomeLoader.load();
+            Scene welcomeScene = new Scene(welcome, 600, 400);
+            welcomeScene.setUserData(welcomeLoader.getController());
+
+            FXMLLoader transitionLoader = new FXMLLoader(getClass().
+                    getResource(GAME_RESOURCE_FILE_BASE + "Transition.fxml"));
+            transition = transitionLoader.load();
+            Scene transitionScene = new Scene(transition, 600, 400);
+            transitionScene.setUserData(transitionLoader.getController());
+
+            FXMLLoader playRandomLoader = new FXMLLoader(getClass().
+                    getResource(GAME_RESOURCE_FILE_BASE + "playRandom.fxml"));
+            playRandom = playRandomLoader.load();
+            Scene playRandomScene = new Scene(playRandom, 600, 400);
+            playRandomScene.setUserData(playRandomLoader.getController());
+
+            ScenesAndStages scenesAndStages = new ScenesAndStages();
+            scenesAndStages.stage = primaryStage;
+            scenesAndStages.welcomeScene = welcomeScene;
+            scenesAndStages.transitionScene = transitionScene;
+            scenesAndStages.playRandomScene = playRandomScene;
+
+            ((WelcomeController)welcomeLoader.getController()).initData(scenesAndStages, gameDaemon);
+            ((WelcomeController)welcomeLoader.getController()).setSetConsolePlayTrue(() -> playConsole = true);
+            ((TransitionController)transitionLoader.getController()).initData(scenesAndStages, gameDaemon);
+            ((PlayRandomController)playRandomLoader.getController()).initData(scenesAndStages, gameDaemon);
+
+            primaryStage.setScene(welcomeScene);
+            primaryStage.setResizable(false);
+            primaryStage.show();
+        } catch (IOException | NullPointerException e) {
             System.out.println("Error: Could not load FXML file: " + e.getMessage());
             playConsole = true;
             Platform.exit();
         }
-        welcomeScene = new Scene(welcome, 600, 400);
-        getPlayersScene = new Scene(getPlayers, 600, 400);
-        primaryStage.setScene(welcomeScene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
     }
 
     @Override
     public void stop() {
-    }
-
-    public void btnToConsole(ActionEvent actionEvent) {
-        playConsole = true;
-        Platform.exit();
-    }
-
-    public void btnSwap(ToggleButton btnAction, ToggleButton btnDormant, int mask) {
-        gameReady &= (~mask);
-        if (btnAction.isSelected()) {
-            btnDormant.setSelected(false);
-            gameReady += mask;
-        }
-        txtWelcomeFeedback.setVisible(false);
-    }
-
-    public void btnOnePlayerSelected(ActionEvent actionEvent) {
-        btnSwap(btnOnePlayer, btnTwoPlayer, 1);
-        gameDaemon.setNumberOfPlayers(1);
-    }
-
-    public void btnTwoPlayerSelected(ActionEvent actionEvent) {
-        btnSwap(btnTwoPlayer, btnOnePlayer, 1);
-        gameDaemon.setNumberOfPlayers(2);
-    }
-
-    public void btnRandomSelected(ActionEvent actionEvent) {
-        btnSwap(btnRandom, btnFullJeopardy, (1<<1));
-        gameDaemon.setGameType(GameType.RANDOM);
-    }
-
-    public void btnFullJeopardySelected(ActionEvent actionEvent) {
-        btnSwap(btnFullJeopardy, btnRandom, (1<<1));
-        gameDaemon.setGameType(GameType.FULL_JEOPARDY);
-    }
-
-    public void btnBegin(ActionEvent actionEvent) {
-        if (gameReady == 3) {
-            txtWelcomeFeedback.setVisible(true);
-            txtWelcomeFeedback.setText("Preparing game...");
-            if (!gameDaemon.setupGame()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Could not setup game, Terminating.", ButtonType.OK);
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add("/" + GAME_TITLE.replaceAll(" ", "") + ".css");
-                alert.showAndWait();
-                Platform.exit();
-            }
-            System.out.println("\rGame ready!" + "\n");
-            return;
-        }
-
-        switch (gameReady) {
-            case 0:
-                txtWelcomeFeedback.setText("Please select number of players and type of game");
-                break;
-            case 1:
-                txtWelcomeFeedback.setText("Please select type of game");
-                break;
-            case 2:
-                txtWelcomeFeedback.setText("Please select number of players");
-                break;
-            case 3: // Already handled
-            default:
-                // nothing, this is here for code style adherence
-        }
-        txtWelcomeFeedback.setVisible(true);
+        // cleanup
     }
 }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@KenzieQuizBowl.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kenzie.app.TransitionController">
+   <children>
+      <Text fx:id="txtTransitionHeading" layoutX="63.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Heading" textAlignment="CENTER" wrappingWidth="473.21875">
+         <font>
+            <Font name="Copperplate" size="50.0" />
+         </font>
+         <fill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop>
+                     <color>
+                        <Color red="0.5654950737953186" green="0.048915691673755646" blue="0.9605262875556946" />
+                     </color>
+                  </Stop>
+                  <Stop offset="1.0">
+                     <color>
+                        <Color red="1.0" green="1.0" blue="1.0" />
+                     </color>
+                  </Stop>
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Text>
+      <Text fx:id="txtTransitionBody" layoutX="29.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Body" textAlignment="CENTER" wrappingWidth="539.2187500000001">
+         <font>
+            <Font name="Copperplate" size="28.0" />
+         </font>
+         <fill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop>
+                     <color>
+                        <Color red="0.32156863808631897" green="0.1568627506494522" blue="0.4470588266849518" />
+                     </color>
+                  </Stop>
+                  <Stop offset="1.0">
+                     <color>
+                        <Color red="1.0" green="1.0" blue="1.0" />
+                     </color>
+                  </Stop>
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Text>
+      <Text fx:id="txtTransitionFooter" layoutX="24.0" layoutY="361.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Footer" textAlignment="CENTER" wrappingWidth="550.21875">
+         <font>
+            <Font name="Copperplate" size="33.0" />
+         </font>
+         <fill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop>
+                     <color>
+                        <Color red="0.32156863808631897" green="0.1568627506494522" blue="0.4470588266849518" />
+                     </color>
+                  </Stop>
+                  <Stop offset="1.0">
+                     <color>
+                        <Color red="0.27339181303977966" green="0.8684210777282715" blue="0.8684210777282715" />
+                     </color>
+                  </Stop>
+               </stops>
+            </LinearGradient>
+         </fill>
+      </Text>
+   </children>
+</AnchorPane>

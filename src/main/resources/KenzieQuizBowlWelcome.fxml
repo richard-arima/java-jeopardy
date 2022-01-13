@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@KenzieQuizBowl.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kenzie.app.Main">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@KenzieQuizBowl.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kenzie.app.WelcomeController">
    <children>
       <Button id="btnToConsole" layoutX="443.0" layoutY="7.0" mnemonicParsing="false" onAction="#btnToConsole" prefHeight="20.0" prefWidth="151.0" text="Go To Console Mode" />
       <ToggleButton fx:id="btnOnePlayer" layoutX="187.0" layoutY="180.0" mnemonicParsing="false" onAction="#btnOnePlayerSelected" prefHeight="73.0" prefWidth="113.0" text="1 Player" />
@@ -58,7 +58,7 @@
       </Text>
       <ToggleButton id="btnSecondary" fx:id="btnRandom" layoutX="161.0" layoutY="267.0" mnemonicParsing="false" onAction="#btnRandomSelected" prefHeight="44.0" prefWidth="141.0" text="Random Questions" />
       <ToggleButton id="btnSecondary" fx:id="btnFullJeopardy" layoutX="300.0" layoutY="267.0" mnemonicParsing="false" onAction="#btnFullJeopardySelected" prefHeight="44.0" prefWidth="141.0" text="Full Jeopardy Style" />
-      <Button id="btnAction" layoutX="243.0" layoutY="342.0" mnemonicParsing="false" onAction="#btnBegin" prefHeight="44.0" prefWidth="113.0" text="Begin" />
+      <Button id="btnAction" fx:id="btnBegin" layoutX="243.0" layoutY="342.0" mnemonicParsing="false" onAction="#btnBegin" prefHeight="44.0" prefWidth="113.0" text="Begin" />
       <Text fx:id="txtWelcomeFeedback" layoutX="37.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="123.21875">
          <fill>
             <LinearGradient cycleMethod="REFLECT" endX="1.0" endY="1.0">

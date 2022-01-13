@@ -11,9 +11,9 @@
       "points": null
     },
     {
-      "name": "Capstone - CustomHTTPClientTest",
+      "name": "Capstone - CustomHttpClientTest",
       "setup": "",
-      "run": "gradle test --tests CustomHTTPClientTest",
+      "run": "gradle test --tests CustomHttpClientTest",
       "input": "",
       "output": "",
       "comparison": "included",

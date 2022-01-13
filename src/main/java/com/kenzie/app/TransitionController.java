@@ -23,7 +23,10 @@ public class TransitionController {
         this.scenesAndStages = scenesAndStages;
         this.gameDaemon = gameDaemon;
 
-        scenesAndStages.transitionScene.setOnKeyPressed(e -> scenesAndStages.stage.setScene(scenesAndStages.playRandomScene));
+        scenesAndStages.transitionScene.setOnKeyPressed(e -> {
+            scenesAndStages.stage.setScene(scenesAndStages.playRandomScene);
+            ((PlayRandomController)scenesAndStages.playRandomScene.getUserData()).setCurrentQuestion();
+        });
     }
 
     public void transitionTo(GUITransitionType transitionType) {

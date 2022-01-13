@@ -173,6 +173,9 @@ public class Main extends Application {
     }
 
     private static void printResults() {
+        System.out.println(getResultsAsString());
+    }
+    public static String getResultsAsString() {
         int[] scores = gameDaemon.getPlayersScore();
         int winningScore;
 
@@ -200,16 +203,17 @@ public class Main extends Application {
                     sb.append(" & ");
                     sb.append("Player ").append(winningPlayers.get(winningPlayers.size() - 1) + 1);
                 }
-                System.out.println("\n\nThe winning score is " + winningScore + ", held by " +
-                        sb + "!! " + getExpression(winningScore));
+                return "\n\nThe winning score is " + winningScore + ", held by " +
+                        sb + "!! " + getExpression(winningScore);
             } else {
-                System.out.println("\n\nYour score is " + winningScore +
-                        "!! " + getExpression(winningScore));
+                return "\n\nYour score is " + winningScore +
+                        "!! " + getExpression(winningScore);
             }
         }
+        return "";
     }
 
-    private static String getExpression(int score) {
+    public static String getExpression(int score) {
         String expression = "";
         int percentCorrect = (int)(((double)score /
                 (double)GameDaemon.GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER) * 10);

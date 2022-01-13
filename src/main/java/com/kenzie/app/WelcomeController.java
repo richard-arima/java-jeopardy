@@ -36,6 +36,22 @@ public class WelcomeController {
         this.gameDaemon = gameDaemon;
     }
 
+    public void reset() {
+        txtWelcomeFeedback.setText("");
+        if (btnOnePlayer.isSelected()) {
+            gameDaemon.setNumberOfPlayers(1);
+        }
+        if (btnTwoPlayer.isSelected()) {
+            gameDaemon.setNumberOfPlayers(2);
+        }
+        if (btnRandom.isSelected()) {
+            gameDaemon.setGameType(GameType.RANDOM);
+        }
+        if (btnFullJeopardy.isSelected()) {
+            gameDaemon.setGameType(GameType.FULL_JEOPARDY);
+        }
+    }
+
     public void setSetConsolePlayTrue(Runnable method) {
         this.setConsolePlayTrue = method;
     }

@@ -24,7 +24,7 @@ public class GameDaemon {
     private int currentQuestion = -1;
     private int[] playersScore = null;
 
-    public static int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 3;
+    public static int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
     public static String GAME_RANDOM_RULES =
             "Player(s) given " + GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER + " clues. " +
             "For each given clue you will have 15 seconds to enter a response. " +

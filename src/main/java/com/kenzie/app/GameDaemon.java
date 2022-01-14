@@ -132,6 +132,7 @@ public class GameDaemon {
         this.playersWithClues.clear();
     }
 
+    public String REGEX_PUNCTUATION = "'|,|\\.|\"|&";
     // DEBUG ============================================================ MAKE THIS PRIVATE LATER =============
     public ArrayList<String> generateAcceptableAnswers(String answer) {
         ArrayList<String> acceptableAnswers = new ArrayList<>();
@@ -149,7 +150,7 @@ public class GameDaemon {
         // take out grammar articles and punctuation from extracted words
         for (int i = 0; i < acceptableAnswers.size(); i++ ) {
             acceptableAnswers.add(i, acceptableAnswers.remove(i).
-                    replaceAll("'|,|\\.|\"|&", "").
+                    replaceAll(REGEX_PUNCTUATION, "").
                     replaceAll("^(the|an|a|and)\\s|\\s+(the|an|a|and)\\s+|\\s+", " ").trim());
 
         }
@@ -164,7 +165,7 @@ public class GameDaemon {
         } else {
             // check to see if answer is correct
             userAnswer = userAnswer.toLowerCase(Locale.ROOT);
-            userAnswer = userAnswer.replaceAll("'|,|\\.|\"", "");
+            userAnswer = userAnswer.replaceAll(REGEX_PUNCTUATION, "");
             for (String answerOption : generateAcceptableAnswers(getCurrentClueDTO().getAnswer())) {
                 boolean answerOk = true;
                 for (String answerOptionSplit : answerOption.split(" ")) {

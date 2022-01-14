@@ -63,7 +63,7 @@ public class Main extends Application {
 //
 //            System.out.println();
 //
-//            String ex4 = "single people";
+//            String ex4 = "United States Geological Survey";
 //            System.out.println("Original: " + ex4);
 //            ArrayList<String> al4 = gameDaemon.generateAcceptableAnswers(ex4);
 //            System.out.println(al4);

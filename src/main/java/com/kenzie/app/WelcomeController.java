@@ -57,7 +57,8 @@ public class WelcomeController {
     }
 
     public void showRules() {
-        ((TransitionController)scenesAndStages.transitionScene.getUserData()).transitionTo(GUITransitionType.RULES);
+        ((TransitionController)scenesAndStages.transitionScene.getUserData()).
+                transitionTo(GUITransitionType.RULES);
         scenesAndStages.stage.setScene(scenesAndStages.transitionScene);
     }
 
@@ -100,9 +101,11 @@ public class WelcomeController {
             txtWelcomeFeedback.setText("Preparing game...");
             txtWelcomeFeedback.setVisible(true);
             if (!gameDaemon.setupGame()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Could not setup game, Terminating.", ButtonType.OK);
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        "Could not setup game, Terminating.", ButtonType.OK);
                 DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add("/" + Main.GAME_TITLE.replaceAll(" ", "") + ".css");
+                dialogPane.getStylesheets().add("/" + Main.GAME_TITLE.
+                        replaceAll(" ", "") + ".css");
                 alert.showAndWait();
                 Platform.exit();
             }

@@ -24,7 +24,8 @@ public class TransitionController {
 
         scenesAndStages.transitionScene.setOnKeyPressed(e -> {
             scenesAndStages.stage.setScene(scenesAndStages.playRandomScene);
-            ((PlayRandomController)scenesAndStages.playRandomScene.getUserData()).setCurrentQuestion();
+            ((PlayRandomController)scenesAndStages.playRandomScene.getUserData()).
+                    setCurrentQuestion();
         });
     }
 

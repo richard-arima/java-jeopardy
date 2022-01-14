@@ -74,7 +74,8 @@ public class CustomHttpClient {
     }
 
     public CategoryListDTO getCategories() {
-        return (CategoryListDTO)getDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES, CategoryListDTO.class);
+        return (CategoryListDTO)getDTO(END_POINT_BASE_URL + END_POINT_GET_CATEGORIES,
+                CategoryListDTO.class);
     }
 
     public ClueListDTO getCluesWithParameters(String... args) {

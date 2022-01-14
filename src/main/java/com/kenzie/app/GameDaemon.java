@@ -1,6 +1,5 @@
 package com.kenzie.app;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -29,7 +28,7 @@ public class GameDaemon {
     private int[] playersScore;
 
     public static final int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
-    public static final int GAME_INPUT_TIMEOUT = 10; // in seconds
+    public static final int GAME_INPUT_TIMEOUT = 15; // in seconds
     public static final String GAME_RANDOM_RULES =
             "Player(s) given " + GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER + " clues. " +
             "For each given clue you will have " + GAME_INPUT_TIMEOUT +
@@ -78,7 +77,9 @@ public class GameDaemon {
     }
 
     private boolean setupRandomCategoriesGame(boolean mixedValues) {
-        if ((this.numberOfCluesOnJService == -1) || (this.numberOfPlayers < 1) || (this.gameType == GameType.NONE)) {
+        if ((this.numberOfCluesOnJService == -1) || (this.numberOfPlayers < 1) ||
+                (this.gameType == GameType.NONE))
+        {
             return false;
         }
 
@@ -89,19 +90,22 @@ public class GameDaemon {
 
         int currentPlayerIndex = 0;
         int currentQuestionIndex = 0;
-        while (playersWithClues.get(this.numberOfPlayers - 1).size() != GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER) {
+        while (playersWithClues.get(this.numberOfPlayers - 1).size() !=
+                GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER)
+        {
             int randomNum = randomNumberGenerator.nextInt(numberOfCluesOnJService + 1);
             if (cluesUsed.contains(randomNum)) {
                 continue;
             }
             ClueDTO clue = httpClient.getClueById(randomNum);
-            clue.setAcceptableAnswers(generateAcceptableAnswers(clue.getAnswer()));
 
             if (currentPlayerIndex == 0) {
                 // this is the case we are doing the first and the rest match
                 playersWithClues.get(currentPlayerIndex).add(clue);
             } else {
-                if (!mixedValues && (clue.getValue() != playersWithClues.get(0).get(currentQuestionIndex).getValue())) {
+                if (!mixedValues && (clue.getValue() !=
+                        playersWithClues.get(0).get(currentQuestionIndex).getValue()))
+                {
                     continue;
                 } else {
                     playersWithClues.get(currentPlayerIndex).add(clue);
@@ -128,7 +132,7 @@ public class GameDaemon {
         this.playersWithClues.clear();
     }
 
-    // DEBUG ============================================================ MAKE THIS PRIVATE LATER =====
+    // DEBUG ============================================================ MAKE THIS PRIVATE LATER =============
     public ArrayList<String> generateAcceptableAnswers(String answer) {
         ArrayList<String> acceptableAnswers = new ArrayList<>();
         answer = answer.toLowerCase(Locale.ROOT);
@@ -145,8 +149,8 @@ public class GameDaemon {
         // take out grammar articles and punctuation from extracted words
         for (int i = 0; i < acceptableAnswers.size(); i++ ) {
             acceptableAnswers.add(i, acceptableAnswers.remove(i).
-                    replaceAll("^(the|an|a|and)\\s|\\s+(the|an|a|and)\\s+|\\s+", " ").trim().
-                    replaceAll("'|,|\\.", ""));
+                    replaceAll("'|,|\\.|\"|&", "").
+                    replaceAll("^(the|an|a|and)\\s|\\s+(the|an|a|and)\\s+|\\s+", " ").trim());
 
         }
 
@@ -161,7 +165,7 @@ public class GameDaemon {
             // check to see if answer is correct
             userAnswer = userAnswer.toLowerCase(Locale.ROOT);
             userAnswer = userAnswer.replaceAll("'|,|\\.|\"", "");
-            for (String answerOption : getCurrentClueDTO().getAcceptableAnswers()) {
+            for (String answerOption : generateAcceptableAnswers(getCurrentClueDTO().getAnswer())) {
                 boolean answerOk = true;
                 for (String answerOptionSplit : answerOption.split(" ")) {
                     if (!userAnswer.contains(answerOptionSplit)) {
@@ -176,10 +180,6 @@ public class GameDaemon {
                     break;
                 }
             }
-//            if (userAnswer.trim().compareToIgnoreCase(getCurrentClueDTO().getAnswer()) == 0) {
-//                isCorrect = true;
-//                this.playersScore[getCurrentPlayer()]++;
-//            }
         }
 
         this.currentPlayer = ++this.currentPlayer % this.numberOfPlayers;

@@ -125,6 +125,7 @@ public class PlayRandomController {
                 System.out.println("Heading Size: " + txtPlayerAndCategory.getText().length()); // =========DEBUG
                 System.out.println("Question Size: " + txtQuestion.getText().length());
                 System.out.println("Answer size: " + txtAnswer.getText().length());       // =================DEBUG
+                System.out.println("User Answer: " + txtAnswer.getText());
 
                 proceedOnSpace = false;
                 setCurrentQuestion();

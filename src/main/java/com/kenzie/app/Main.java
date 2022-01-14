@@ -85,6 +85,7 @@ public class Main extends Application {
 
                 System.out.println( "Q: " + currentClueDTO.getQuestion());
                 // Line below is intentionally left commented so it's easier for grader
+                // This will display the answer to the question as given by jservice
                 //System.out.println("A --> " + currentClueDTO.getAnswer()); // DEBUG ===================== DEBUG
 
                 String userAnswer;
@@ -348,10 +349,5 @@ public class Main extends Application {
             playConsole = true;
             Platform.exit();
         }
-    }
-
-    @Override
-    public void stop() {
-        // cleanup
     }
 }

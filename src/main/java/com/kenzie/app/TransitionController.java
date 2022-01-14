@@ -14,10 +14,6 @@ public class TransitionController {
     @FXML
     public Text txtTransitionFooter;
 
-    @FXML
-    public void initialize() {
-    }
-
     public void initData(ScenesAndStages scenesAndStages, GameDaemon gameDaemon) {
         this.scenesAndStages = scenesAndStages;
         this.gameDaemon = gameDaemon;
@@ -36,8 +32,6 @@ public class TransitionController {
                 txtTransitionBody.setText(GameDaemon.GAME_RANDOM_RULES +
                         "\n\nYou may begin typing when question is shown");
                 txtTransitionFooter.setText("Press any key when ready");
-                break;
-            case RESULTS:
                 break;
             default:
         }

@@ -98,6 +98,15 @@ public class WelcomeController {
 
     public void btnBegin(ActionEvent actionEvent) {
         if (gameReady == 3) {
+            if (gameDaemon.getGameType() == GameType.FULL_JEOPARDY) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                        "This game type is not fully implemented yet. Sorry!", ButtonType.OK);
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add("/" + Main.GAME_TITLE.
+                        replaceAll(" ", "") + ".css");
+                alert.showAndWait();
+                return;
+            }
             txtWelcomeFeedback.setText("Preparing game...");
             txtWelcomeFeedback.setVisible(true);
             if (!gameDaemon.setupGame()) {

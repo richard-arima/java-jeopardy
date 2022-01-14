@@ -90,12 +90,9 @@ public class PlayRandomController {
                         timeout.setCycleCount(GameDaemon.GAME_INPUT_TIMEOUT + 1);
                         timeout.play();
 
-                        System.out.println("Heading Size: " + txtPlayerAndCategory.getText().length());
-                        System.out.println("Question Size: " + txtQuestion.getText().length());
-                        System.out.println("Answer size: " + txtAnswer.getText().length());
-                        System.out.println("Category: " + currentClueDTO.getCategory().getTitle()); // ============DEBUG
-                        System.out.println("Value: " + currentClueDTO.getValue());
-                        System.out.println(currentClueDTO.getAnswer()); // =================================== DEBUG ======
+                        // The following line is left commented for graders ease of use
+                        // This will std.out the answer given by jservice
+                        //System.out.println(currentClueDTO.getAnswer()); // =================================== DEBUG ======
                     }
                 });
     }
@@ -122,11 +119,6 @@ public class PlayRandomController {
     public void handleInput(KeyEvent value) {
         if (proceedOnSpace) {
             if (value.getCode() == KeyCode.SPACE) {
-                System.out.println("Heading Size: " + txtPlayerAndCategory.getText().length()); // =========DEBUG
-                System.out.println("Question Size: " + txtQuestion.getText().length());
-                System.out.println("Answer size: " + txtAnswer.getText().length());       // =================DEBUG
-                System.out.println("User Answer: " + txtAnswer.getText());
-
                 proceedOnSpace = false;
                 setCurrentQuestion();
             }

@@ -52,10 +52,6 @@ public class GameDaemon {
         currentPlayer = -1;
         currentQuestion = -1;
         gameType = GameType.NONE;
-
-        // ================================ REMOVE BELOW LATER =========================================================
-//        CategoryListDTO categories = httpClient.getCategories();
-//        ClueListDTO clues = httpClient.getCluesWithParameters("category", "1", "value", "100");
     }
 
     public static GameDaemon getInstance() {
@@ -132,7 +128,6 @@ public class GameDaemon {
         this.playersWithClues.clear();
     }
 
-    // DEBUG ============================================================ MAKE THIS PRIVATE LATER =============
     public ArrayList<String> generateAcceptableAnswers(String answer) {
         ArrayList<String> acceptableAnswers = new ArrayList<>();
         answer = answer.toLowerCase(Locale.ROOT);
@@ -164,7 +159,7 @@ public class GameDaemon {
         } else {
             // check to see if answer is correct
             userAnswer = userAnswer.toLowerCase(Locale.ROOT);
-            userAnswer = userAnswer.replaceAll("'|,|\\.|\"", "");
+            userAnswer = userAnswer.replaceAll("'|,|\\.|\"|&", "");
             for (String answerOption : generateAcceptableAnswers(getCurrentClueDTO().getAnswer())) {
                 boolean answerOk = true;
                 for (String answerOptionSplit : answerOption.split(" ")) {

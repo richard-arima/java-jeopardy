@@ -80,7 +80,6 @@ public class CustomHttpClient {
 
     public ClueListDTO getCluesWithParameters(String... args) {
         if ((args.length & 1) == 1) {
-            // Maybe throw an exception for invalid amount of args
             return null;
         }
         StringBuilder sb = new StringBuilder(END_POINT_BASE_URL + END_POINT_GET_CLUES + "?");

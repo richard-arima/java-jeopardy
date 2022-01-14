@@ -27,7 +27,7 @@ public class GameDaemon {
     private int currentQuestion = -1;
     private int[] playersScore;
 
-    public static final int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 4;
+    public static final int GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER = 10;
     public static final int GAME_INPUT_TIMEOUT = 15; // in seconds
     public static final String GAME_RANDOM_RULES =
             "Player(s) given " + GAME_RANDOM_NUM_QUESTIONS_PER_PLAYER + " clues. " +
